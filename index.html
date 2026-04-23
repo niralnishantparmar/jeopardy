@@ -1,0 +1,1508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>EECS Jeopardy — APCSA Review</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: radial-gradient(ellipse at top, #0a1a5c 0%, #050928 60%, #020514 100%);
+    font-family: Georgia, 'Times New Roman', serif;
+    color: #fff;
+    padding: 24px 16px 48px;
+    position: relative;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,0.5), transparent),
+      radial-gradient(1px 1px at 70% 60%, rgba(255,255,255,0.4), transparent),
+      radial-gradient(2px 2px at 40% 80%, rgba(255,215,0,0.3), transparent),
+      radial-gradient(1px 1px at 85% 15%, rgba(255,255,255,0.6), transparent),
+      radial-gradient(1px 1px at 10% 70%, rgba(255,255,255,0.4), transparent);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .container { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
+  header { text-align: center; margin-bottom: 24px; }
+  h1 {
+    font-family: 'Bodoni MT', 'Didot', Georgia, serif;
+    font-size: clamp(36px, 7vw, 72px);
+    font-weight: 900;
+    letter-spacing: 0.15em;
+    color: #FFD700;
+    text-shadow: 0 4px 0 #000, 0 8px 24px rgba(255,215,0,0.4);
+    margin: 0;
+    line-height: 1;
+  }
+  .subtitle {
+    font-style: italic;
+    font-size: 14px;
+    letter-spacing: 0.3em;
+    color: #9bb3ff;
+    margin-top: 8px;
+    text-transform: uppercase;
+  }
+  .top-bar {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin: 16px 0 20px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .cleared-box {
+    background: linear-gradient(180deg, #1a2a8a, #0a1450);
+    border: 2px solid #FFD700;
+    border-radius: 6px;
+    padding: 6px 16px;
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .cleared-label {
+    font-size: 10px;
+    color: #9bb3ff;
+    letter-spacing: 0.2em;
+    display: block;
+    text-transform: uppercase;
+  }
+  .cleared-value { color: #FFD700; font-family: 'Bodoni MT', 'Didot', Georgia, serif; }
+  .plain-btn {
+    background: transparent;
+    color: #9bb3ff;
+    border: 1px solid #3a4a8a;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .plain-btn:hover { background: rgba(155,179,255,0.1); }
+  .board {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 6px;
+    background: #000;
+    padding: 6px;
+    border-radius: 8px;
+    box-shadow: 0 0 0 3px #FFD700, 0 20px 60px rgba(0,0,0,0.6);
+  }
+  .cat-cell {
+    background: linear-gradient(180deg, #1e3adf 0%, #0a1a8a 100%);
+    padding: 18px 8px;
+    text-align: center;
+    font-family: 'Bodoni MT', 'Didot', Georgia, serif;
+    font-weight: 900;
+    font-size: clamp(11px, 1.2vw, 15px);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #FFD700;
+    text-shadow: 0 2px 0 #000;
+    min-height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #000;
+    line-height: 1.1;
+  }
+  .val-cell {
+    background: linear-gradient(180deg, #1e3adf 0%, #0a1a8a 100%);
+    padding: 24px 8px;
+    text-align: center;
+    font-family: 'Bodoni MT', 'Didot', Georgia, serif;
+    font-weight: 900;
+    font-size: clamp(18px, 2.2vw, 32px);
+    color: #FFD700;
+    text-shadow: 0 3px 0 #000, 0 0 12px rgba(255,215,0,0.3);
+    min-height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #000;
+    cursor: pointer;
+    transition: filter 0.15s;
+    user-select: none;
+  }
+  .val-cell:hover { filter: brightness(1.2); }
+  .val-cell.answered {
+    background: linear-gradient(180deg, #050928, #020514);
+    color: transparent;
+    text-shadow: none;
+    cursor: default;
+  }
+  .val-cell.answered:hover { filter: none; }
+  .hint {
+    text-align: center;
+    margin-top: 24px;
+    color: #9bb3ff;
+    font-size: 13px;
+    letter-spacing: 0.15em;
+    font-style: italic;
+  }
+  .scoreboard {
+    margin-top: 32px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(155,179,255,0.15);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .team {
+    padding-left: 12px;
+    opacity: 0.75;
+    transition: opacity 0.3s;
+  }
+  .team.leader { opacity: 1; }
+  .team-name {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 2px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .team-name input {
+    background: rgba(0,0,0,0.3);
+    color: #fff;
+    padding: 2px 6px;
+    border-radius: 2px;
+    font-family: inherit;
+    font-size: 11px;
+    width: 100%;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .leader-star { color: #FFD700; font-size: 10px; }
+  .team-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 6px;
+  }
+  .team-score {
+    font-family: 'Bodoni MT', 'Didot', Georgia, serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: #d8e0ff;
+  }
+  .tiny-btn {
+    background: transparent;
+    color: #9bb3ff;
+    padding: 2px 6px;
+    border-radius: 2px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 10px;
+    line-height: 1;
+  }
+  /* Modal */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 16px;
+    backdrop-filter: blur(4px);
+  }
+  .modal {
+    background: linear-gradient(180deg, #1e3adf 0%, #0a1a8a 100%);
+    border: 4px solid #FFD700;
+    border-radius: 8px;
+    padding: 32px;
+    max-width: 800px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 80px rgba(0,0,0,0.8), inset 0 2px 0 rgba(255,255,255,0.15);
+  }
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(255,215,0,0.3);
+  }
+  .modal-cat {
+    font-size: 13px;
+    letter-spacing: 0.25em;
+    color: #9bb3ff;
+    text-transform: uppercase;
+  }
+  .modal-val {
+    font-family: 'Bodoni MT', 'Didot', Georgia, serif;
+    font-size: 32px;
+    font-weight: 900;
+    color: #FFD700;
+    text-shadow: 0 2px 0 #000;
+  }
+  .question-text {
+    font-size: 20px;
+    line-height: 1.5;
+    margin-bottom: 20px;
+  }
+  pre.code {
+    background: #020514;
+    border: 1px solid #3a4a8a;
+    border-radius: 4px;
+    padding: 16px;
+    font-family: 'JetBrains Mono', 'Fira Code', Menlo, monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #b8c8ff;
+    white-space: pre;
+    overflow-x: auto;
+    margin-bottom: 20px;
+  }
+  .team-picker {
+    margin-bottom: 16px;
+    padding: 14px;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,215,0,0.3);
+    border-radius: 4px;
+  }
+  .team-picker-label {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: #9bb3ff;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+  .team-picker-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .team-pick-btn {
+    background: rgba(0,0,0,0.3);
+    color: #fff;
+    padding: 10px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: all 0.15s;
+  }
+  .choices { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+  .choice {
+    background: rgba(0,0,0,0.3);
+    border: 2px solid #3a4a8a;
+    color: #fff;
+    padding: 14px 18px;
+    border-radius: 4px;
+    font-size: 16px;
+    text-align: left;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+  .choice.selected { background: rgba(255,215,0,0.15); border-color: #FFD700; }
+  .choice.correct { background: rgba(34,197,94,0.2); border-color: #22c55e; }
+  .choice.incorrect { background: rgba(239,68,68,0.2); border-color: #ef4444; }
+  .choice:disabled { cursor: default; }
+  .reveal-box {
+    background: rgba(0,0,0,0.4);
+    border: 2px dashed #FFD700;
+    border-radius: 4px;
+    padding: 20px;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+  .reveal-label {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: #9bb3ff;
+    margin-bottom: 8px;
+  }
+  .reveal-answer {
+    font-size: 22px;
+    color: #FFD700;
+    font-family: 'Bodoni MT', 'Didot', Georgia, serif;
+    font-weight: 700;
+    white-space: pre-wrap;
+  }
+  .explanation {
+    background: rgba(0,0,0,0.3);
+    border-left: 3px solid #FFD700;
+    padding: 16px;
+    margin-bottom: 20px;
+    font-size: 15px;
+    line-height: 1.6;
+    color: #d8e0ff;
+    white-space: pre-wrap;
+  }
+  .actions { display: flex; gap: 12px; justify-content: flex-end; flex-wrap: wrap; }
+  .btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .btn-primary { background: #FFD700; color: #000; }
+  .btn-ghost { background: transparent; color: #9bb3ff; border: 1px solid #3a4a8a; }
+  .btn[disabled] { opacity: 0.4; cursor: not-allowed; }
+  .team-award-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+  }
+  .team-award-label {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: #9bb3ff;
+    text-align: center;
+    text-transform: uppercase;
+  }
+  .team-award-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .award-btn {
+    color: #000;
+    border: none;
+    padding: 12px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .award-btn .amt { font-size: 14px; margin-top: 2px; display: block; }
+  .penalty-btn {
+    background: rgba(239,68,68,0.15);
+    color: #fff;
+    padding: 8px 6px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 11px;
+    letter-spacing: 0.05em;
+  }
+  .penalty-btn .amt { font-size: 12px; color: #ef4444; font-weight: 700; display: block; }
+  /* Winner */
+  .winner-banner {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    flex-direction: column;
+    gap: 20px;
+    padding: 24px;
+    text-align: center;
+  }
+  .winner-title {
+    font-family: 'Bodoni MT', 'Didot', Georgia, serif;
+    font-size: clamp(40px, 8vw, 80px);
+    color: #FFD700;
+    text-shadow: 0 4px 0 #000, 0 8px 24px rgba(255,215,0,0.6);
+    margin: 0;
+    letter-spacing: 0.1em;
+  }
+  .winner-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    max-width: 600px;
+    width: 100%;
+  }
+  .winner-card {
+    border-radius: 6px;
+    padding: 16px;
+    background: rgba(0,0,0,0.4);
+  }
+  .winner-card .name {
+    font-size: 13px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+  .winner-card .score {
+    font-family: 'Bodoni MT', 'Didot', Georgia, serif;
+    font-size: 32px;
+    font-weight: 900;
+    color: #FFD700;
+    margin-top: 4px;
+  }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>EECS JEOPARDY</h1>
+      <div class="subtitle">APCSA Review · Niral, Tanu, Shreya, Rachael, Dyuti</div>
+    </header>
+
+    <div class="top-bar">
+      <div class="cleared-box">
+        <span class="cleared-label">Cleared</span>
+        <span class="cleared-value"><span id="answered-count">0</span>/30</span>
+      </div>
+      <button class="plain-btn" id="rename-btn">Rename Teams</button>
+      <button class="plain-btn" id="reset-btn">Reset Game</button>
+    </div>
+
+    <div class="board" id="board"></div>
+
+    <div class="hint">Click a dollar value to reveal the clue</div>
+
+    <div class="scoreboard" id="scoreboard"></div>
+  </div>
+
+  <div class="modal-backdrop hidden" id="modal-backdrop">
+    <div class="modal" id="modal" onclick="event.stopPropagation()"></div>
+  </div>
+
+  <div class="winner-banner hidden" id="winner-banner"></div>
+
+<script>
+// ============ GAME DATA ============
+const CATEGORIES = [
+  "Objects & Methods",
+  "Selection & Iteration",
+  "Class Creation",
+  "Arrays & ArrayLists",
+  "Recursion",
+  "Miscellaneous",
+];
+
+const VALUES = [200, 400, 600, 800, 1000];
+
+const BOARD = {
+  "Objects & Methods": [
+    {
+      question: "Which statement BEST describes how objects are passed into methods in Java?",
+      code: null,
+      choices: [
+        "A. Objects are passed by reference",
+        "B. Objects are passed by value of their reference",
+        "C. Objects are passed by value of their data",
+        "D. Objects are passed by copy of the object",
+      ],
+      answer: "B",
+      explanation: "Java is strictly pass-by-value. For objects, the VALUE that gets copied is the reference itself — so the method receives a copy of the reference pointing to the same object.",
+    },
+    {
+      question: "What is printed?",
+      code: `public class Dog {
+  private String name;
+  public Dog(String n) { name = n; }
+  public void setName(String n) { n = name; }
+  public String getName() { return name; }
+}
+
+Dog d = new Dog("Max");
+d.setName("Buddy");
+System.out.println(d.getName());`,
+      choices: ["A. Max", "B. Buddy", "C. null", "D. Compilation error"],
+      answer: "A",
+      explanation: "Inside setName, the line `n = name;` assigns the field's value to the local parameter. The field `name` is never modified, so it stays \"Max\".",
+    },
+    {
+      question: "What is printed?",
+      code: `public class Counter {
+  private int count;
+  public Counter() { count = 0; }
+  public void increment(int count) { count++; }
+  public int getCount() { return count; }
+}
+
+Counter c = new Counter();
+c.increment(5);
+System.out.println(c.getCount());`,
+      choices: ["A. 0", "B. 1", "C. 5", "D. 6"],
+      answer: "A",
+      explanation: "The parameter `count` shadows the instance field. `count++` increments the local parameter, not the field. The field stays at 0.",
+    },
+    {
+      question: "What is printed?",
+      code: `public class Box {
+  private int value;
+  public Box(int v) { value = v; }
+  public void change(Box b) {
+    b.value = 20;
+    b = new Box(50);
+  }
+  public int getValue() { return value; }
+}
+
+Box b1 = new Box(10);
+b1.change(b1);
+System.out.println(b1.getValue());`,
+      choices: ["A. 10", "B. 20", "C. 50", "D. Compilation error"],
+      answer: "B",
+      explanation: "`b.value = 20` mutates the actual object b1 points to. Then `b = new Box(50)` only reassigns the LOCAL copy of the reference — b1 is unaffected. Result: 20.",
+    },
+    {
+      question: "What is printed?",
+      code: `public class A {
+  public int num;
+  public A(int n) { num = n; }
+  public void mystery(A other) {
+    other.num = num + other.num;
+    num = num * 2;
+  }
+}
+
+A obj1 = new A(3);
+A obj2 = new A(4);
+obj1.mystery(obj2);
+System.out.println(obj1.num + " " + obj2.num);`,
+      choices: ["A. 3 7", "B. 6 7", "C. 6 10", "D. 3 10"],
+      answer: "B",
+      explanation: "other.num = 3 + 4 = 7 (obj2.num becomes 7). Then num = 3 * 2 = 6 (obj1.num becomes 6). Output: \"6 7\".",
+    },
+    {
+      question: "What is printed?",
+      code: `public class Wrapper {
+  private int value;
+  public Wrapper(int v) { value = v; }
+  public void update(Wrapper w) {
+    w.value += value;
+    value += 5;
+  }
+  public int getValue() { return value; }
+}
+
+Wrapper a = new Wrapper(2);
+Wrapper b = new Wrapper(3);
+a.update(b);
+b.update(a);
+System.out.println(a.getValue() + " " + b.getValue());`,
+      choices: ["A. 7 5", "B. 10 7", "C. 12 10", "D. 7 10"],
+      answer: "C",
+      explanation: "a.update(b): b.value = 3+2 = 5, a.value = 2+5 = 7. Now a=7, b=5. b.update(a): a.value = 7+5 = 12, b.value = 5+5 = 10. Output: \"12 10\".",
+    },
+  ],
+  "Selection & Iteration": [
+    {
+      question: "What is the output of this code?",
+      code: `int x = 3;
+int y = 5;
+int sum = 0;
+for (int i = 0; i < 4; i++) {
+  x += i;
+  for (int j = 2; j >= 0; j--) {
+    if ((x + j) % 2 == 0) {
+      sum += x - j;
+    } else if ((y + i) % 3 == 0) {
+      sum += y + j;
+      y--;
+    } else {
+      sum += i + j;
+    }
+    x--;
+  }
+  y += i;
+}
+System.out.println(sum);`,
+      choices: null,
+      answer: "1",
+      explanation: "Trace carefully — this one requires tracking x, y, and sum through all iterations. Final sum = 1.",
+    },
+    {
+      question: "What is the output of the code?",
+      code: `int a = 7;
+int b = 2;
+int count = 0;
+while (a > 0) {
+  if (a % 2 == 1) {
+    for (int i = 0; i < b; i++) {
+      count += i;
+      if (count % 2 == 0) {
+        a -= 2;
+      } else {
+        a--;
+      }
+    }
+  } else {
+    a /= 2;
+    b++;
+  }
+  count++;
+}
+System.out.println(count);`,
+      choices: null,
+      answer: "11",
+      explanation: "Final count = 11 after tracing through all the branches.",
+    },
+    {
+      question: "What is the output of the code?",
+      code: `int n = 6;
+int total = 1;
+for (int i = 1; i <= n; i++) {
+  int temp = i;
+  while (temp > 0) {
+    if (temp % 2 == 0) {
+      total += temp / 2;
+      temp -= 3;
+    } else {
+      total += temp;
+      temp -= 2;
+    }
+  }
+  if (total % 5 == 0) {
+    total /= 5;
+  } else {
+    total += i;
+  }
+}
+System.out.println(total);`,
+      choices: null,
+      answer: "15",
+      explanation: "Final total = 15.",
+    },
+    {
+      question: "What is the output of the code?",
+      code: `int result = 0;
+for (int i = 1; i <= 3; i++) {
+  int val = i * 2;
+  for (int j = 0; j < 3; j++) {
+    int temp = val;
+    if (j % 2 == 0) {
+      temp += j;
+    } else {
+      temp -= i;
+    }
+    for (int k = 1; k <= 2; k++) {
+      if ((temp + k) % 3 == 0) {
+        result += temp * k;
+      } else {
+        result -= k;
+      }
+    }
+  }
+}
+System.out.println(result);`,
+      choices: null,
+      answer: "12",
+      explanation: "Triple nested loop trace — final result = 12.",
+    },
+    {
+      question: "What is the output of the code?",
+      code: `int x = 4;
+int y = 3;
+int z = 0;
+for (int i = 0; i < 5; i++) {
+  boolean flag = (i % 2 == 0);
+  if (flag && x > y || !flag && y > x) {
+    z += x - y;
+    x--;
+  } else {
+    z += y - x;
+    y++;
+  }
+  if ((x + y + z) % 4 == 0) {
+    z /= 2;
+  } else {
+    z += i;
+  }
+}
+System.out.println(z);`,
+      choices: null,
+      answer: "7",
+      explanation: "Remember && binds tighter than ||. Final z = 7.",
+    },
+    {
+      question: "What is the output of the code?",
+      code: `int a = 2;
+int b = 3;
+int c = 1;
+for (int i = 0; i < 4; i++) {
+  if (a % 2 == 0) {
+    b += a;
+    for (int j = 0; j < 2; j++) {
+      if ((b + j) % 3 == 0) {
+        c += b - j;
+      } else {
+        c += a + j;
+      }
+    }
+    a++;
+  } else {
+    c += b;
+    b--;
+  }
+  if (c % 2 == 0) {
+    a += c % 3;
+  } else {
+    b += c % 2;
+  }
+}
+System.out.println(a + " " + b + " " + c);`,
+      choices: null,
+      answer: "3 6 25",
+      explanation: "After all 4 iterations: a=3, b=6, c=25.",
+    },
+  ],
+  "Class Creation": [
+    {
+      question: "What is the purpose of the `this` keyword when used inside a constructor, and when is it necessary?",
+      code: null,
+      choices: null,
+      answer: "To refer to the current object",
+      explanation: "`this` refers to the current object. It's necessary when a parameter has the same name as an instance variable. Without it, the assignment would just reassign the parameter to itself.",
+    },
+    {
+      question: "What is the output?",
+      code: `public class Counter {
+  private int count = 0;
+  public void increment() { count++; }
+  public int getCount() { return count; }
+}
+
+Counter a = new Counter();
+Counter b = a;
+b.increment();
+System.out.println(a.getCount());`,
+      choices: ["A. 0", "B. 1", "C. Compilation error", "D. null"],
+      answer: "B",
+      explanation: "a and b point to the same object. Calling increment() on b modifies the single shared object, so a.getCount() also reflects the change. Output: 1.",
+    },
+    {
+      question: "What is wrong with this constructor?",
+      code: `public class Rectangle {
+  private int width, height;
+  public Rectangle(int width, int height) {
+    width = width;
+    height = height;
+  }
+}`,
+      choices: null,
+      answer: "Missing 'this' — parameters assign to themselves",
+      explanation: "The parameters are being assigned to themselves. `this.width = width` and `this.height = height` are required. Without `this`, Java sees the local parameter on both sides of the =.",
+    },
+    {
+      question: "What is the value of Box.getCount() after this line executes?",
+      code: `public class Box {
+  private static int count = 0;
+  public Box() { count++; }
+  public static int getCount() { return count; }
+}
+
+Box[] arr = new Box[5];
+System.out.println(Box.getCount());`,
+      choices: ["A. 0", "B. 1", "C. 5", "D. Compilation error"],
+      answer: "A",
+      explanation: "Declaring an array only allocates space for 5 null references. No Box objects are actually constructed, so the constructor never runs and count is never incremented. Output: 0.",
+    },
+    {
+      question: "This code is meant to print true. Why does it always print false instead?",
+      code: `public class Point {
+  private int x, y;
+  public Point(int x, int y) { this.x = x; this.y = y; }
+  public boolean equals(Point other) {
+    return this.x == other.x && this.y == other.y;
+  }
+}
+
+Point p1 = new Point(2, 3);
+Point p2 = new Point(2, 3);
+System.out.println(p1.equals((Object) p2));`,
+      choices: null,
+      answer: "equals(Point) overloads — doesn't override Object.equals()",
+      explanation: "The method signature is equals(Point other), not equals(Object other). This means it OVERLOADS — not overrides — Object.equals(). When p2 is cast to Object, Java calls the original Object.equals() which compares references, not values, so it returns false.",
+    },
+    {
+      question: "What is printed?",
+      code: `public class Tricky {
+  private int x;
+  public Tricky(int x) { this.x = x; }
+  public Tricky add(Tricky other) {
+    return new Tricky(this.x + other.x);
+  }
+  public String toString() { return "" + x; }
+}
+
+Tricky a = new Tricky(3);
+Tricky b = new Tricky(5);
+Tricky c = a.add(b).add(a);
+System.out.println(c);`,
+      choices: ["A. 8", "B. 11", "C. 13", "D. 16"],
+      answer: "B",
+      explanation: "a.add(b) creates a new Tricky(8). Then .add(a) is called on that temporary object, creating new Tricky(8 + 3) = Tricky(11). toString() returns \"11\".",
+    },
+  ],
+  "Arrays & ArrayLists": [
+    {
+      question: "What is printed?",
+      code: `int[] a = {3, 1, 4, 1, 5};
+int x = 1;
+for (int i = 0; i < a.length; i += 2)
+  x += a[i];
+System.out.println(x);`,
+      choices: ["A. 3", "B. 9", "C. 13", "D. 14"],
+      answer: "C",
+      explanation: "Iterates i = 0, 2, 4. x = 1 + 3 + 4 + 5 = 13.",
+    },
+    {
+      question: "What is printed?",
+      code: `int[] nums1 = {1, 2, 3, 4};
+int[] nums2 = {1, 2, 3, 4};
+int total = 0;
+int j = nums2.length - 1;
+for (int i = 0; i < nums1.length; i++) {
+  total += nums1[i] * nums2[j];
+  System.out.print(total);
+  j--;
+}`,
+      choices: ["A. 410160", "B. 4101620", "C. 48916", "D. 1234"],
+      answer: "B",
+      explanation: "i=0: total=1*4=4, print \"4\". i=1: total=4+2*3=10, print \"10\". i=2: total=10+3*2=16, print \"16\". i=3: total=16+4*1=20, print \"20\". Concatenated: \"4101620\".",
+    },
+    {
+      question: "What is printed? Trace carefully — there is a subtle mutation.",
+      code: `ArrayList<Integer> a = new ArrayList<>(
+  Arrays.asList(3,1,4,1,5,9,2,6));
+int n = a.size();
+for (int i = 0; i < n / 2; i++) {
+  int sum = a.get(i) + a.get(n - 1 - i);
+  a.set(i, sum);
+  a.set(n - 1 - i, sum);
+}
+System.out.println(a.get(2) + a.get(5));`,
+      choices: ["A. 6", "B. 13", "C. 26", "D. 30"],
+      answer: "C",
+      explanation: "After the loop, the list becomes [9,3,13,6,6,13,3,9]. a.get(2) + a.get(5) = 13 + 13 = 26.",
+    },
+    {
+      question: "What prints to the console?",
+      code: `public ArrayList<Integer> populateList(int[][] nums) {
+  ArrayList<Integer> numsList = new ArrayList<Integer>();
+  for (int r = 0; r < nums.length; r++) {
+    for (int c = 0; c < nums[r].length - 1; c++) {
+      for (int a = c + 1; a < nums[r].length; a++) {
+        if (nums[r][c] == nums[r][a]) {
+          numsList.add(r);
+          a = nums[r].length;
+          c = nums[r].length;
+        }
+      }
+    }
+  }
+  return numsList;
+}
+
+int[][] nums = {{5, 10, 5, 10},
+                {6, 8, 9, 2},
+                {3, 4, 3, 3}};
+System.out.println(populateList(nums));`,
+      choices: ["A. [0, 1, 2]", "B. [0, 2]", "C. [0, 0, 2, 2]", "D. [5, 3]"],
+      answer: "B",
+      explanation: "Row 0: finds 5==5, adds 0, breaks out. Row 1: no duplicates. Row 2: finds 3==3, adds 2, breaks. Result: [0, 2].",
+    },
+    {
+      question: "What is the result of compiling and running this code?",
+      code: `ArrayList list = new ArrayList();
+list.add("Hello");
+list.add(20);
+list.add("Grandpa");
+list.add(50);
+for (int i = 0; i < list.size(); i++) {
+  if (list.get(i).equals("Hello"))
+    System.out.print(list.get(i));
+  else
+    if (list.get(i) > 0)
+      System.out.print(list.get(i) * 2);
+}`,
+      choices: [
+        "A. Hello40100",
+        "B. Hello20Grandpa50",
+        "C. Compilation error",
+        "D. Runtime exception",
+      ],
+      answer: "C",
+      explanation: "Compilation error. `list.get(i)` returns Object (raw ArrayList). You cannot use `>` on Object, and you cannot multiply Object by 2. Won't compile.",
+    },
+    {
+      question: "What is printed?",
+      code: `ArrayList<Integer> a = new ArrayList<>(
+  Arrays.asList(3,1,4,1,5,9,2,6));
+int n = a.size();
+for (int i = 0; i < n / 2; i++) {
+  int sum = a.get(i) + a.get(n - 1 - i);
+  a.set(i, sum);
+  a.set(n - 1 - i, sum);
+}
+a.set(4, (a.remove(2) + a.get(5)));
+System.out.println(a.get(4));`,
+      choices: ["A. 13", "B. 16", "C. 19", "D. 26"],
+      answer: "B",
+      explanation: "After the loop: [9,3,13,6,6,13,3,9]. a.remove(2) returns 13, list becomes [9,3,6,6,13,3,9]. a.get(5) is now 3. 13+3 = 16. a.set(4, 16). Output: 16.",
+    },
+  ],
+  "Recursion": [
+    {
+      question: "What is the output?",
+      code: `public static int f(int n) {
+  if (n <= 0) return 0;
+  return f(n - 1) + g(n);
+}
+
+public static int g(int n) {
+  if (n <= 1) return 1;
+  return f(n - 1) + g(n - 2);
+}
+
+System.out.println(f(6));`,
+      choices: ["A. 42", "B. 63", "C. 81", "D. 105"],
+      answer: "C",
+      explanation: "Mutually recursive. Building up from base cases: g(1)=1, g(2)=f(1)+g(0)=2, etc. Final f(6) = 81.",
+    },
+    {
+      question: "What is the array's contents after fill(grid, 0, 0) is called on a 3x3 grid initialized to all zeros?",
+      code: `public static void fill(int[][] grid, int r, int c) {
+  if (r >= grid.length) return;
+  if (c >= grid[0].length) {
+    fill(grid, r + 1, 0);
+    return;
+  }
+  grid[r][c] = r * grid[0].length + c + 1;
+  fill(grid, r, c + 1);
+}`,
+      choices: null,
+      answer: "[[1,2,3], [4,5,6], [7,8,9]]",
+      explanation: "The formula r * cols + c + 1 fills the grid with sequential numbers 1-9 in row-major order.",
+    },
+    {
+      question: "What does this print when parse(\"a+bb*ccc\", 0) is called?",
+      code: `public static int parse(String s, int i) {
+  if (i >= s.length()) return 0;
+  char c = s.charAt(i);
+  if (c == '+') return parse(s, i + 1) + 1;
+  if (c == '*') return parse(s, i + 1) * 2;
+  return parse(s, i + 1);
+}
+
+System.out.println(parse("a+bb*ccc", 0));`,
+      choices: ["A. 0", "B. 1", "C. 2", "D. 3"],
+      answer: "B",
+      explanation: "The recursion unwinds from the end. After '*': 0*2=0. Before '*' (the letters after): just 0. At '+': 0+1=1. The letters before don't change the value. Final: 1.",
+    },
+    {
+      question: "What is printed?",
+      code: `public static int calls = 0;
+public static int h(int a, int b) {
+  calls++;
+  if (a == 0) return b;
+  if (b == 0) return a;
+  if (a > b) return h(a - b, b);
+  return h(a, b - a);
+}
+
+System.out.println(h(12, 8));
+System.out.println(h(7, 3));
+System.out.println(calls);`,
+      choices: null,
+      answer: "4, 1, 10",
+      explanation: "This is Euclid's GCD by subtraction. h(12,8)=4 (5 calls). h(7,3)=1 (5 calls). Total calls = 10.",
+    },
+    {
+      question: "What is printed when build(new ArrayList<>(), \"abc\") is called?",
+      code: `public static void build(ArrayList<String> chosen, String remaining) {
+  if (remaining.isEmpty()) {
+    System.out.println(chosen);
+    return;
+  }
+  for (int i = 0; i < remaining.length(); i++) {
+    chosen.add(String.valueOf(remaining.charAt(i)));
+    build(chosen, remaining.substring(0, i) + remaining.substring(i + 1));
+    chosen.remove(chosen.size() - 1);
+  }
+}`,
+      choices: null,
+      answer: "All 6 permutations of a, b, c",
+      explanation: "Prints all permutations:\n[a, b, c]\n[a, c, b]\n[b, a, c]\n[b, c, a]\n[c, a, b]\n[c, b, a]",
+    },
+    {
+      question: "What is the output?",
+      code: `public static int p(int n) {
+  if (n <= 0) return 1;
+  return q(n - 1) + r(n - 1);
+}
+public static int q(int n) {
+  if (n <= 0) return 0;
+  return p(n - 1) + r(n - 1);
+}
+public static int r(int n) {
+  if (n <= 0) return 0;
+  return p(n - 1) + q(n - 1);
+}
+
+System.out.println(p(5));`,
+      choices: ["A. 8", "B. 10", "C. 16", "D. 21"],
+      answer: "B",
+      explanation: "Three mutually recursive functions. Building up: p(1)=1, q(1)=1, r(1)=1, then p(2)=2, ... Final p(5) = 10.",
+    },
+  ],
+  "Miscellaneous": [
+    {
+      question: "What does the `final` keyword do when applied to a variable?",
+      code: null,
+      choices: [
+        "A. Makes the variable private",
+        "B. Prevents the variable from being reassigned",
+        "C. Makes the variable static",
+        "D. Makes the variable immutable in memory",
+      ],
+      answer: "B",
+      explanation: "`final` prevents REASSIGNMENT. For object references, you can still mutate the object — you just can't point the variable at a different object.",
+    },
+    {
+      question: "What is printed?",
+      code: `String a = "hello";
+String b = "hello";
+String c = new String("hello");
+System.out.println((a == b) + " " + (a == c) + " " + a.equals(c));`,
+      choices: [
+        "A. true true true",
+        "B. true false true",
+        "C. false false true",
+        "D. true true false",
+      ],
+      answer: "B",
+      explanation: "String literals are interned, so a and b point to the same object (a == b is true). `new String(...)` creates a new object, so a == c is false. a.equals(c) compares content, so true.",
+    },
+    {
+      question: "What is the difference between `==` and `.equals()` for objects?",
+      code: null,
+      choices: null,
+      answer: "== compares references; .equals() compares content (if overridden)",
+      explanation: "`==` checks if two references point to the same object in memory. `.equals()` checks content equality IF the class has overridden it (otherwise it falls back to == behavior from Object).",
+    },
+    {
+      question: "What is printed?",
+      code: `int[] a = {1, 2, 3};
+int[] b = a;
+b[0] = 99;
+System.out.println(a[0]);`,
+      choices: ["A. 1", "B. 99", "C. 0", "D. Compilation error"],
+      answer: "B",
+      explanation: "Arrays are objects. `b = a` copies the reference, so a and b point to the same array. Modifying b[0] modifies a[0] too. Output: 99.",
+    },
+    {
+      question: "What happens when you try to access an index out of bounds in an ArrayList?",
+      code: null,
+      choices: [
+        "A. Returns null",
+        "B. Returns 0",
+        "C. Throws IndexOutOfBoundsException",
+        "D. Compilation error",
+      ],
+      answer: "C",
+      explanation: "ArrayList throws IndexOutOfBoundsException at runtime. This is a runtime error, not a compile-time error, because the index value isn't known until execution.",
+    },
+    {
+      question: "What is printed?",
+      code: `Integer x = 128;
+Integer y = 128;
+Integer a = 127;
+Integer b = 127;
+System.out.println((x == y) + " " + (a == b));`,
+      choices: [
+        "A. true true",
+        "B. false false",
+        "C. true false",
+        "D. false true",
+      ],
+      answer: "D",
+      explanation: "Integer caching! Java caches Integer objects for values -128 to 127. So a == b is true (same cached object), but x == y is false (two separate objects above the cache range).",
+    },
+  ],
+};
+
+const DEFAULT_TEAMS = [
+  { name: "Team 1", color: "#ef4444" },
+  { name: "Team 2", color: "#22c55e" },
+  { name: "Team 3", color: "#3b82f6" },
+];
+
+// ============ STATE ============
+let teams = JSON.parse(JSON.stringify(DEFAULT_TEAMS));
+let scores = [0, 0, 0];
+let answered = {};
+let active = null;
+let selectedChoice = null;
+let revealed = false;
+let activeTeam = null;
+let editingTeams = false;
+
+// ============ HELPERS ============
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function answeredCount() {
+  return Object.keys(answered).length;
+}
+
+function isGameComplete() {
+  return answeredCount() === CATEGORIES.length * VALUES.length;
+}
+
+// ============ RENDER BOARD ============
+function renderBoard() {
+  const board = document.getElementById("board");
+  board.innerHTML = "";
+  // category row
+  CATEGORIES.forEach((cat) => {
+    const el = document.createElement("div");
+    el.className = "cat-cell";
+    el.textContent = cat;
+    board.appendChild(el);
+  });
+  // value rows
+  VALUES.forEach((val, valueIdx) => {
+    CATEGORIES.forEach((cat) => {
+      const key = cat + "-" + valueIdx;
+      const el = document.createElement("div");
+      el.className = "val-cell" + (answered[key] ? " answered" : "");
+      el.textContent = answered[key] ? "" : "$" + val;
+      if (!answered[key]) {
+        el.addEventListener("click", () => openCell(cat, valueIdx));
+      }
+      board.appendChild(el);
+    });
+  });
+  document.getElementById("answered-count").textContent = answeredCount();
+}
+
+// ============ RENDER SCOREBOARD ============
+function renderScoreboard() {
+  const sb = document.getElementById("scoreboard");
+  sb.innerHTML = "";
+  const maxScore = Math.max.apply(null, scores);
+  const allEqual = scores[0] === scores[1] && scores[1] === scores[2];
+  teams.forEach((team, idx) => {
+    const isLeader = scores[idx] === maxScore && !allEqual;
+    const div = document.createElement("div");
+    div.className = "team" + (isLeader ? " leader" : "");
+    div.style.borderLeft = "2px solid " + team.color;
+    const nameHtml = editingTeams
+      ? `<input value="${escapeHtml(team.name)}" data-team-idx="${idx}" maxlength="20" style="border:1px solid ${team.color}66" />`
+      : `<span style="color:${team.color}">${escapeHtml(team.name)}</span>${isLeader ? '<span class="leader-star">★</span>' : ''}`;
+    const sign = scores[idx] < 0 ? "-" : "";
+    div.innerHTML = `
+      <div class="team-name">${nameHtml}</div>
+      <div class="team-row">
+        <div class="team-score">${sign}$${Math.abs(scores[idx])}</div>
+        <div style="display:flex;gap:3px">
+          <button class="tiny-btn minus-btn" data-idx="${idx}" style="border:1px solid ${team.color}44">−</button>
+          <button class="tiny-btn plus-btn" data-idx="${idx}" style="border:1px solid ${team.color}44">+</button>
+        </div>
+      </div>
+    `;
+    sb.appendChild(div);
+  });
+  // attach listeners
+  sb.querySelectorAll(".minus-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      scores[parseInt(btn.dataset.idx)] -= 100;
+      renderScoreboard();
+    });
+  });
+  sb.querySelectorAll(".plus-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      scores[parseInt(btn.dataset.idx)] += 100;
+      renderScoreboard();
+    });
+  });
+  sb.querySelectorAll("input[data-team-idx]").forEach((input) => {
+    input.addEventListener("input", (e) => {
+      teams[parseInt(e.target.dataset.teamIdx)].name = e.target.value;
+    });
+  });
+}
+
+// ============ MODAL ============
+function openCell(category, valueIdx) {
+  const key = category + "-" + valueIdx;
+  if (answered[key]) return;
+  active = { category, valueIdx, cell: BOARD[category][valueIdx] };
+  selectedChoice = null;
+  revealed = false;
+  activeTeam = null;
+  renderModal();
+  document.getElementById("modal-backdrop").classList.remove("hidden");
+}
+
+function closeCell() {
+  active = null;
+  selectedChoice = null;
+  revealed = false;
+  activeTeam = null;
+  document.getElementById("modal-backdrop").classList.add("hidden");
+  checkGameComplete();
+}
+
+function skipQuestion() {
+  const key = active.category + "-" + active.valueIdx;
+  answered[key] = true;
+  closeCell();
+  renderBoard();
+}
+
+function submitMC() {
+  if (!selectedChoice || activeTeam === null) return;
+  const key = active.category + "-" + active.valueIdx;
+  const value = VALUES[active.valueIdx];
+  const correct = selectedChoice === active.cell.answer;
+  scores[activeTeam] += correct ? value : -value;
+  revealed = true;
+  answered[key] = true;
+  renderModal();
+  renderScoreboard();
+  renderBoard();
+}
+
+function markCorrect(teamIdx) {
+  const key = active.category + "-" + active.valueIdx;
+  scores[teamIdx] += VALUES[active.valueIdx];
+  answered[key] = true;
+  closeCell();
+  renderBoard();
+  renderScoreboard();
+}
+
+function markIncorrect(teamIdx) {
+  const key = active.category + "-" + active.valueIdx;
+  scores[teamIdx] -= VALUES[active.valueIdx];
+  answered[key] = true;
+  closeCell();
+  renderBoard();
+  renderScoreboard();
+}
+
+function renderModal() {
+  const modal = document.getElementById("modal");
+  const { category, valueIdx, cell } = active;
+  const isMC = cell.choices !== null;
+
+  let html = `
+    <div class="modal-header">
+      <div class="modal-cat">${escapeHtml(category)}</div>
+      <div class="modal-val">$${VALUES[valueIdx]}</div>
+    </div>
+    <div class="question-text">${escapeHtml(cell.question)}</div>
+  `;
+
+  if (cell.code) {
+    html += `<pre class="code">${escapeHtml(cell.code)}</pre>`;
+  }
+
+  // team picker (before reveal)
+  if (!revealed) {
+    html += `
+      <div class="team-picker">
+        <div class="team-picker-label">${isMC ? "Which team is answering?" : "Who buzzed in first?"}</div>
+        <div class="team-picker-grid">
+          ${teams.map((team, idx) => {
+            const selected = activeTeam === idx;
+            return `<button class="team-pick-btn pick-team-btn" data-idx="${idx}"
+              style="background:${selected ? team.color : 'rgba(0,0,0,0.3)'};
+                     color:${selected ? '#000' : '#fff'};
+                     border:2px solid ${team.color}">
+              ${escapeHtml(team.name)}
+            </button>`;
+          }).join("")}
+        </div>
+      </div>
+    `;
+  }
+
+  // choices
+  if (isMC) {
+    html += `<div class="choices">`;
+    cell.choices.forEach((choice) => {
+      const letter = choice.trim().charAt(0);
+      let state = "";
+      if (revealed) {
+        if (letter === cell.answer) state = "correct";
+        else if (letter === selectedChoice) state = "incorrect";
+      } else if (selectedChoice === letter) {
+        state = "selected";
+      }
+      html += `<button class="choice ${state} choice-btn" data-letter="${letter}" ${revealed ? 'disabled' : ''}>${escapeHtml(choice)}</button>`;
+    });
+    html += `</div>`;
+  }
+
+  // free-response reveal
+  if (!isMC && revealed) {
+    html += `
+      <div class="reveal-box">
+        <div class="reveal-label">ANSWER</div>
+        <div class="reveal-answer">${escapeHtml(cell.answer)}</div>
+      </div>
+    `;
+  }
+
+  // explanation
+  if (revealed) {
+    html += `<div class="explanation">${escapeHtml(cell.explanation)}</div>`;
+  }
+
+  // actions
+  html += `<div class="actions">`;
+  if (!revealed && isMC) {
+    const canSubmit = selectedChoice && activeTeam !== null;
+    const label = activeTeam === null ? "Pick a team first" : !selectedChoice ? "Pick an answer" : `Submit for ${teams[activeTeam].name}`;
+    html += `
+      <button class="btn btn-ghost" id="skip-btn">Skip (no points)</button>
+      <button class="btn btn-primary" id="submit-btn" ${canSubmit ? '' : 'disabled'}>${escapeHtml(label)}</button>
+    `;
+  } else if (!revealed && !isMC) {
+    html += `
+      <button class="btn btn-ghost" id="skip-btn">Skip (no points)</button>
+      <button class="btn btn-primary" id="reveal-btn">Reveal Answer</button>
+    `;
+  } else if (revealed && !isMC) {
+    html += `<div class="team-award-grid">
+      <div class="team-award-label">Who gets the points?</div>
+      <div class="team-award-row">
+        ${teams.map((team, idx) => `
+          <button class="award-btn award-correct" data-idx="${idx}" style="background:${team.color}">
+            ${escapeHtml(team.name)}<span class="amt">+$${VALUES[valueIdx]}</span>
+          </button>
+        `).join("")}
+      </div>
+      <div class="team-award-row">
+        ${teams.map((team, idx) => `
+          <button class="penalty-btn award-wrong" data-idx="${idx}" style="border:1px solid ${team.color}">
+            ${escapeHtml(team.name)} wrong<span class="amt">−$${VALUES[valueIdx]}</span>
+          </button>
+        `).join("")}
+      </div>
+      <button class="btn btn-ghost" id="close-btn" style="align-self:center;margin-top:4px">Close (no score change)</button>
+    </div>`;
+  } else if (revealed && isMC) {
+    html += `<button class="btn btn-primary" id="continue-btn">Continue</button>`;
+  }
+  html += `</div>`;
+
+  modal.innerHTML = html;
+
+  // ====== attach listeners ======
+  modal.querySelectorAll(".pick-team-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      activeTeam = parseInt(btn.dataset.idx);
+      renderModal();
+    });
+  });
+  modal.querySelectorAll(".choice-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      if (revealed) return;
+      selectedChoice = btn.dataset.letter;
+      renderModal();
+    });
+  });
+  const skipBtn = document.getElementById("skip-btn");
+  if (skipBtn) skipBtn.addEventListener("click", skipQuestion);
+  const submitBtn = document.getElementById("submit-btn");
+  if (submitBtn) submitBtn.addEventListener("click", submitMC);
+  const revealBtn = document.getElementById("reveal-btn");
+  if (revealBtn) revealBtn.addEventListener("click", () => { revealed = true; renderModal(); });
+  const continueBtn = document.getElementById("continue-btn");
+  if (continueBtn) continueBtn.addEventListener("click", closeCell);
+  const closeBtn = document.getElementById("close-btn");
+  if (closeBtn) closeBtn.addEventListener("click", closeCell);
+  modal.querySelectorAll(".award-correct").forEach((btn) => {
+    btn.addEventListener("click", () => markCorrect(parseInt(btn.dataset.idx)));
+  });
+  modal.querySelectorAll(".award-wrong").forEach((btn) => {
+    btn.addEventListener("click", () => markIncorrect(parseInt(btn.dataset.idx)));
+  });
+}
+
+// ============ GAME OVER ============
+function checkGameComplete() {
+  if (!isGameComplete()) {
+    document.getElementById("winner-banner").classList.add("hidden");
+    return;
+  }
+  const maxScore = Math.max.apply(null, scores);
+  const winners = teams.filter((_, i) => scores[i] === maxScore);
+  const winnerText = winners.length === 1
+    ? `Winner: <span style="color:${winners[0].color};font-weight:900;letter-spacing:0.1em">${escapeHtml(winners[0].name)}</span>`
+    : `Tie between: ${winners.map((w) => `<span style="color:${w.color};font-weight:900;letter-spacing:0.1em">${escapeHtml(w.name)}</span>`).join(", ")}`;
+
+  const banner = document.getElementById("winner-banner");
+  banner.innerHTML = `
+    <h2 class="winner-title">GAME OVER</h2>
+    <div style="font-size:22px;color:#fff">${winnerText}</div>
+    <div class="winner-grid">
+      ${teams.map((team, idx) => {
+        const sign = scores[idx] < 0 ? "-" : "";
+        return `<div class="winner-card" style="border:2px solid ${team.color}">
+          <div class="name" style="color:${team.color}">${escapeHtml(team.name)}</div>
+          <div class="score">${sign}$${Math.abs(scores[idx])}</div>
+        </div>`;
+      }).join("")}
+    </div>
+    <button class="btn btn-primary" id="play-again-btn">Play Again</button>
+  `;
+  banner.classList.remove("hidden");
+  document.getElementById("play-again-btn").addEventListener("click", resetGame);
+}
+
+// ============ RESET ============
+function resetGame() {
+  const anyProgress = Object.keys(answered).length > 0 || scores.some((s) => s !== 0);
+  if (anyProgress && !confirm("Reset the entire game?")) return;
+  scores = [0, 0, 0];
+  answered = {};
+  active = null;
+  document.getElementById("modal-backdrop").classList.add("hidden");
+  document.getElementById("winner-banner").classList.add("hidden");
+  renderBoard();
+  renderScoreboard();
+}
+
+// ============ INIT ============
+document.getElementById("reset-btn").addEventListener("click", resetGame);
+document.getElementById("rename-btn").addEventListener("click", () => {
+  editingTeams = !editingTeams;
+  document.getElementById("rename-btn").textContent = editingTeams ? "Done" : "Rename Teams";
+  renderScoreboard();
+});
+document.getElementById("modal-backdrop").addEventListener("click", (e) => {
+  if (e.target.id === "modal-backdrop") closeCell();
+});
+
+renderBoard();
+renderScoreboard();
+</script>
+</body>
+</html>
