@@ -30,8 +30,8 @@
     z-index: 0;
   }
   .container { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
-  header { text-align: center; margin-bottom: 24px; }
-  h1 {
+  .header { text-align: center; margin-bottom: 24px; }
+  .title {
     font-family: 'Bodoni MT', 'Didot', Georgia, serif;
     font-size: clamp(36px, 7vw, 72px);
     font-weight: 900;
@@ -53,27 +53,31 @@
     display: flex;
     justify-content: center;
     gap: 12px;
-    margin: 16px 0 20px;
+    margin-bottom: 20px;
     flex-wrap: wrap;
-    align-items: center;
   }
   .cleared-box {
     background: linear-gradient(180deg, #1a2a8a, #0a1450);
-    border: 2px solid #FFD700;
+    border: 3px solid #FFD700;
     border-radius: 6px;
     padding: 6px 16px;
     font-size: 14px;
     font-weight: 700;
+    letter-spacing: 0.1em;
+    box-shadow: inset 0 2px 0 rgba(255,255,255,0.2), 0 4px 12px rgba(0,0,0,0.5);
   }
   .cleared-label {
-    font-size: 10px;
+    font-size: 11px;
     color: #9bb3ff;
     letter-spacing: 0.2em;
     display: block;
     text-transform: uppercase;
   }
-  .cleared-value { color: #FFD700; font-family: 'Bodoni MT', 'Didot', Georgia, serif; }
-  .plain-btn {
+  .cleared-value {
+    color: #FFD700;
+    font-family: 'Bodoni MT', 'Didot', Georgia, serif;
+  }
+  .btn-ghost {
     background: transparent;
     color: #9bb3ff;
     border: 1px solid #3a4a8a;
@@ -85,7 +89,6 @@
     cursor: pointer;
     font-family: inherit;
   }
-  .plain-btn:hover { background: rgba(155,179,255,0.1); }
   .board {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
@@ -95,7 +98,7 @@
     border-radius: 8px;
     box-shadow: 0 0 0 3px #FFD700, 0 20px 60px rgba(0,0,0,0.6);
   }
-  .cat-cell {
+  .category-cell {
     background: linear-gradient(180deg, #1e3adf 0%, #0a1a8a 100%);
     padding: 18px 8px;
     text-align: center;
@@ -113,7 +116,7 @@
     border: 2px solid #000;
     line-height: 1.1;
   }
-  .val-cell {
+  .value-cell {
     background: linear-gradient(180deg, #1e3adf 0%, #0a1a8a 100%);
     padding: 24px 8px;
     text-align: center;
@@ -131,14 +134,14 @@
     transition: filter 0.15s;
     user-select: none;
   }
-  .val-cell:hover { filter: brightness(1.2); }
-  .val-cell.answered {
+  .value-cell:hover { filter: brightness(1.2); }
+  .value-cell.answered {
     background: linear-gradient(180deg, #050928, #020514);
     color: transparent;
     text-shadow: none;
     cursor: default;
   }
-  .val-cell.answered:hover { filter: none; }
+  .value-cell.answered:hover { filter: none; }
   .hint {
     text-align: center;
     margin-top: 24px;
@@ -147,7 +150,7 @@
     letter-spacing: 0.15em;
     font-style: italic;
   }
-  .scoreboard {
+  .team-bar {
     margin-top: 32px;
     padding-top: 20px;
     border-top: 1px solid rgba(155,179,255,0.15);
@@ -158,12 +161,12 @@
     margin-left: auto;
     margin-right: auto;
   }
-  .team {
+  .team-card {
     padding-left: 12px;
     opacity: 0.75;
     transition: opacity 0.3s;
   }
-  .team.leader { opacity: 1; }
+  .team-card.leader { opacity: 1; }
   .team-name {
     font-size: 10px;
     letter-spacing: 0.2em;
@@ -174,7 +177,7 @@
     align-items: center;
     gap: 6px;
   }
-  .team-name input {
+  .team-name-input {
     background: rgba(0,0,0,0.3);
     color: #fff;
     padding: 2px 6px;
@@ -184,8 +187,8 @@
     width: 100%;
     letter-spacing: 0.12em;
     text-transform: uppercase;
+    margin-bottom: 4px;
   }
-  .leader-star { color: #FFD700; font-size: 10px; }
   .team-row {
     display: flex;
     align-items: baseline;
@@ -198,7 +201,11 @@
     font-weight: 700;
     color: #d8e0ff;
   }
-  .tiny-btn {
+  .team-adjust {
+    display: flex;
+    gap: 3px;
+  }
+  .team-adjust button {
     background: transparent;
     color: #9bb3ff;
     padding: 2px 6px;
@@ -208,18 +215,21 @@
     font-size: 10px;
     line-height: 1;
   }
-  /* Modal */
+  .leader-star { color: #FFD700; font-size: 10px; }
+
+  /* modal */
   .modal-backdrop {
     position: fixed;
     inset: 0;
     background: rgba(0,0,0,0.85);
-    display: flex;
+    display: none;
     align-items: center;
     justify-content: center;
     z-index: 100;
     padding: 16px;
     backdrop-filter: blur(4px);
   }
+  .modal-backdrop.open { display: flex; }
   .modal {
     background: linear-gradient(180deg, #1e3adf 0%, #0a1a8a 100%);
     border: 4px solid #FFD700;
@@ -239,13 +249,13 @@
     padding-bottom: 16px;
     border-bottom: 1px solid rgba(255,215,0,0.3);
   }
-  .modal-cat {
+  .modal-category {
     font-size: 13px;
     letter-spacing: 0.25em;
     color: #9bb3ff;
     text-transform: uppercase;
   }
-  .modal-val {
+  .modal-value {
     font-family: 'Bodoni MT', 'Didot', Georgia, serif;
     font-size: 32px;
     font-weight: 900;
@@ -257,7 +267,7 @@
     line-height: 1.5;
     margin-bottom: 20px;
   }
-  pre.code {
+  .code-block {
     background: #020514;
     border: 1px solid #3a4a8a;
     border-radius: 4px;
@@ -270,26 +280,26 @@
     overflow-x: auto;
     margin-bottom: 20px;
   }
-  .team-picker {
+  .team-select-box {
     margin-bottom: 16px;
     padding: 14px;
     background: rgba(0,0,0,0.3);
     border: 1px solid rgba(255,215,0,0.3);
     border-radius: 4px;
   }
-  .team-picker-label {
+  .team-select-label {
     font-size: 11px;
     letter-spacing: 0.2em;
     color: #9bb3ff;
     margin-bottom: 8px;
     text-transform: uppercase;
   }
-  .team-picker-grid {
+  .team-select-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 8px;
   }
-  .team-pick-btn {
+  .team-select-btn {
     background: rgba(0,0,0,0.3);
     color: #fff;
     padding: 10px 8px;
@@ -302,8 +312,14 @@
     text-transform: uppercase;
     transition: all 0.15s;
   }
-  .choices { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
-  .choice {
+  .team-select-btn.selected { color: #000; }
+  .choices-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .choice-btn {
     background: rgba(0,0,0,0.3);
     border: 2px solid #3a4a8a;
     color: #fff;
@@ -315,10 +331,9 @@
     font-family: inherit;
     transition: all 0.15s;
   }
-  .choice.selected { background: rgba(255,215,0,0.15); border-color: #FFD700; }
-  .choice.correct { background: rgba(34,197,94,0.2); border-color: #22c55e; }
-  .choice.incorrect { background: rgba(239,68,68,0.2); border-color: #ef4444; }
-  .choice:disabled { cursor: default; }
+  .choice-btn.selected { background: rgba(255,215,0,0.15); border-color: #FFD700; }
+  .choice-btn.correct { background: rgba(34,197,94,0.2); border-color: #22c55e; cursor: default; }
+  .choice-btn.incorrect { background: rgba(239,68,68,0.2); border-color: #ef4444; cursor: default; }
   .reveal-box {
     background: rgba(0,0,0,0.4);
     border: 2px dashed #FFD700;
@@ -350,7 +365,12 @@
     color: #d8e0ff;
     white-space: pre-wrap;
   }
-  .actions { display: flex; gap: 12px; justify-content: flex-end; flex-wrap: wrap; }
+  .actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
   .btn {
     padding: 10px 20px;
     border: none;
@@ -363,23 +383,16 @@
     font-family: inherit;
   }
   .btn-primary { background: #FFD700; color: #000; }
-  .btn-ghost { background: transparent; color: #9bb3ff; border: 1px solid #3a4a8a; }
-  .btn[disabled] { opacity: 0.4; cursor: not-allowed; }
-  .team-award-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-success { background: #22c55e; color: #000; }
+  .btn-danger { background: #ef4444; color: #fff; }
+  .scoring-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
     width: 100%;
   }
-  .team-award-label {
-    font-size: 11px;
-    letter-spacing: 0.2em;
-    color: #9bb3ff;
-    text-align: center;
-    text-transform: uppercase;
-  }
-  .team-award-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-  .award-btn {
+  .score-award-btn {
     color: #000;
     border: none;
     padding: 12px 8px;
@@ -391,8 +404,7 @@
     letter-spacing: 0.08em;
     text-transform: uppercase;
   }
-  .award-btn .amt { font-size: 14px; margin-top: 2px; display: block; }
-  .penalty-btn {
+  .score-wrong-btn {
     background: rgba(239,68,68,0.15);
     color: #fff;
     padding: 8px 6px;
@@ -402,13 +414,17 @@
     font-size: 11px;
     letter-spacing: 0.05em;
   }
-  .penalty-btn .amt { font-size: 12px; color: #ef4444; font-weight: 700; display: block; }
-  /* Winner */
+  .score-wrong-btn div {
+    color: #ef4444;
+    font-weight: 700;
+    font-size: 12px;
+  }
+
   .winner-banner {
     position: fixed;
     inset: 0;
     background: rgba(0,0,0,0.9);
-    display: flex;
+    display: none;
     align-items: center;
     justify-content: center;
     z-index: 200;
@@ -417,6 +433,7 @@
     padding: 24px;
     text-align: center;
   }
+  .winner-banner.open { display: flex; }
   .winner-title {
     font-family: 'Bodoni MT', 'Didot', Georgia, serif;
     font-size: clamp(40px, 8vw, 80px);
@@ -437,50 +454,36 @@
     padding: 16px;
     background: rgba(0,0,0,0.4);
   }
-  .winner-card .name {
-    font-size: 13px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    font-weight: 700;
-  }
-  .winner-card .score {
-    font-family: 'Bodoni MT', 'Didot', Georgia, serif;
-    font-size: 32px;
-    font-weight: 900;
-    color: #FFD700;
-    margin-top: 4px;
-  }
-  .hidden { display: none !important; }
 </style>
 </head>
 <body>
   <div class="container">
-    <header>
-      <h1>EECS JEOPARDY</h1>
+    <header class="header">
+      <h1 class="title">EECS JEOPARDY</h1>
       <div class="subtitle">APCSA Review · Niral, Tanu, Shreya, Rachael, Dyuti</div>
     </header>
 
     <div class="top-bar">
       <div class="cleared-box">
         <span class="cleared-label">Cleared</span>
-        <span class="cleared-value"><span id="answered-count">0</span>/30</span>
+        <span class="cleared-value"><span id="answered-count">0</span>/<span id="total-count">36</span></span>
       </div>
-      <button class="plain-btn" id="rename-btn">Rename Teams</button>
-      <button class="plain-btn" id="reset-btn">Reset Game</button>
+      <button class="btn-ghost" id="rename-btn">Rename Teams</button>
+      <button class="btn-ghost" id="reset-btn">Reset Game</button>
     </div>
 
     <div class="board" id="board"></div>
 
     <div class="hint">Click a dollar value to reveal the clue</div>
 
-    <div class="scoreboard" id="scoreboard"></div>
+    <div class="team-bar" id="team-bar"></div>
   </div>
 
-  <div class="modal-backdrop hidden" id="modal-backdrop">
+  <div class="modal-backdrop" id="modal-backdrop">
     <div class="modal" id="modal" onclick="event.stopPropagation()"></div>
   </div>
 
-  <div class="winner-banner hidden" id="winner-banner"></div>
+  <div class="winner-banner" id="winner-banner"></div>
 
 <script>
 // ============ GAME DATA ============
@@ -493,7 +496,7 @@ const CATEGORIES = [
   "Miscellaneous",
 ];
 
-const VALUES = [200, 400, 600, 800, 1000];
+const VALUES = [100, 200, 300, 400, 500, 600];
 
 const BOARD = {
   "Objects & Methods": [
@@ -870,12 +873,12 @@ int total = 0;
 int j = nums2.length - 1;
 for (int i = 0; i < nums1.length; i++) {
   total += nums1[i] * nums2[j];
-  System.out.print(total);
   j--;
-}`,
-      choices: ["A. 410160", "B. 4101620", "C. 48916", "D. 1234"],
+}
+System.out.println(total);`,
+      choices: ["A. 10", "B. 20", "C. 30", "D. 24"],
       answer: "B",
-      explanation: "i=0: total=1*4=4, print \"4\". i=1: total=4+2*3=10, print \"10\". i=2: total=10+3*2=16, print \"16\". i=3: total=16+4*1=20, print \"20\". Concatenated: \"4101620\".",
+      explanation: "Computes sum of nums1[i] * nums2[length-1-i]. i=0: 1*4=4. i=1: 2*3=6. i=2: 3*2=6. i=3: 4*1=4. Total = 4+6+6+4 = 20.",
     },
     {
       question: "What is printed? Trace carefully — there is a subtle mutation.",
@@ -891,6 +894,29 @@ System.out.println(a.get(2) + a.get(5));`,
       choices: ["A. 6", "B. 13", "C. 26", "D. 30"],
       answer: "C",
       explanation: "After the loop, the list becomes [9,3,13,6,6,13,3,9]. a.get(2) + a.get(5) = 13 + 13 = 26.",
+    },
+    {
+      question: "What is the result of compiling and running this code?",
+      code: `ArrayList list = new ArrayList();
+list.add("Hello");
+list.add(20);
+list.add("Grandpa");
+list.add(50);
+for (int i = 0; i < list.size(); i++) {
+  if (list.get(i).equals("Hello"))
+    System.out.print(list.get(i));
+  else
+    if (list.get(i) > 0)
+      System.out.print(list.get(i) * 2);
+}`,
+      choices: [
+        "A. Hello40100",
+        "B. Hello20Grandpa50",
+        "C. Compilation error",
+        "D. Runtime exception",
+      ],
+      answer: "C",
+      explanation: "Compilation error. `list.get(i)` returns Object (raw ArrayList). You cannot use `>` on Object, and you cannot multiply Object by 2. Won't compile.",
     },
     {
       question: "What prints to the console?",
@@ -919,29 +945,6 @@ System.out.println(populateList(nums));`,
       explanation: "Row 0: finds 5==5, adds 0, breaks out. Row 1: no duplicates. Row 2: finds 3==3, adds 2, breaks. Result: [0, 2].",
     },
     {
-      question: "What is the result of compiling and running this code?",
-      code: `ArrayList list = new ArrayList();
-list.add("Hello");
-list.add(20);
-list.add("Grandpa");
-list.add(50);
-for (int i = 0; i < list.size(); i++) {
-  if (list.get(i).equals("Hello"))
-    System.out.print(list.get(i));
-  else
-    if (list.get(i) > 0)
-      System.out.print(list.get(i) * 2);
-}`,
-      choices: [
-        "A. Hello40100",
-        "B. Hello20Grandpa50",
-        "C. Compilation error",
-        "D. Runtime exception",
-      ],
-      answer: "C",
-      explanation: "Compilation error. `list.get(i)` returns Object (raw ArrayList). You cannot use `>` on Object, and you cannot multiply Object by 2. Won't compile.",
-    },
-    {
       question: "What is printed?",
       code: `ArrayList<Integer> a = new ArrayList<>(
   Arrays.asList(3,1,4,1,5,9,2,6));
@@ -962,49 +965,76 @@ System.out.println(a.get(4));`,
     {
       question: "What is the output?",
       code: `public static int f(int n) {
-  if (n <= 0) return 0;
-  return f(n - 1) + g(n);
+  if (n == 0) return 0;
+  return n + f(n - 1);
 }
 
-public static int g(int n) {
-  if (n <= 1) return 1;
-  return f(n - 1) + g(n - 2);
-}
-
-System.out.println(f(6));`,
-      choices: ["A. 42", "B. 63", "C. 81", "D. 105"],
-      answer: "C",
-      explanation: "Mutually recursive. Building up from base cases: g(1)=1, g(2)=f(1)+g(0)=2, etc. Final f(6) = 81.",
+System.out.println(f(4));`,
+      choices: ["A. 6", "B. 10", "C. 15", "D. 24"],
+      answer: "B",
+      explanation: "f(4) = 4 + f(3) = 4 + 3 + f(2) = 4+3+2+1+0 = 10. Classic recursive sum.",
     },
     {
-      question: "What is the array's contents after fill(grid, 0, 0) is called on a 3x3 grid initialized to all zeros?",
-      code: `public static void fill(int[][] grid, int r, int c) {
-  if (r >= grid.length) return;
-  if (c >= grid[0].length) {
-    fill(grid, r + 1, 0);
+      question: "What is the output?",
+      code: `public static int f(int n) {
+  if (n == 0) return 2;
+  return f(n - 1) * 2;
+}
+
+System.out.println(f(4));`,
+      choices: ["A. 8", "B. 16", "C. 32", "D. 64"],
+      answer: "C",
+      explanation: "f(4) = f(3)*2 = f(2)*4 = f(1)*8 = f(0)*16 = 2*16 = 32. Each level doubles, starting from base case 2.",
+    },
+    {
+      question: "What is the output?",
+      code: `public static int calls = 0;
+public static int h(int a, int b) {
+  calls++;
+  if (a == b) return a;
+  if (a > b) return h(a - b, b);
+  return h(a, b - a);
+}
+
+System.out.println(h(10, 6));
+System.out.println(calls);`,
+      choices: null,
+      answer: "2, 4",
+      explanation: "Euclid's GCD with base case a==b. h(10,6)→h(4,6)→h(4,2)→h(2,2)→returns 2. That's 4 calls. Output: 2 then 4.",
+    },
+    {
+      question: "What is printed when f(\"abcd\") is called?",
+      code: `public static void f(String s) {
+  if (s.length() <= 1) {
+    System.out.println(s);
     return;
   }
-  grid[r][c] = r * grid[0].length + c + 1;
-  fill(grid, r, c + 1);
-}`,
-      choices: null,
-      answer: "[[1,2,3], [4,5,6], [7,8,9]]",
-      explanation: "The formula r * cols + c + 1 fills the grid with sequential numbers 1-9 in row-major order.",
-    },
-    {
-      question: "What does this print when parse(\"a+bb*ccc\", 0) is called?",
-      code: `public static int parse(String s, int i) {
-  if (i >= s.length()) return 0;
-  char c = s.charAt(i);
-  if (c == '+') return parse(s, i + 1) + 1;
-  if (c == '*') return parse(s, i + 1) * 2;
-  return parse(s, i + 1);
+  System.out.println(s);
+  f(s.substring(1));
+  f(s.substring(0, s.length() - 1));
 }
 
-System.out.println(parse("a+bb*ccc", 0));`,
-      choices: ["A. 0", "B. 1", "C. 2", "D. 3"],
-      answer: "B",
-      explanation: "The recursion unwinds from the end. After '*': 0*2=0. Before '*' (the letters after): just 0. At '+': 0+1=1. The letters before don't change the value. Final: 1.",
+f("abcd");`,
+      choices: null,
+      answer: "abcd, bcd, cd, d, c, bc, c, b, abc, bc, c, b, ab, b, a",
+      explanation: "Prints current string, then recurses on substring without first char, then substring without last char:\nabcd\nbcd\ncd\nd\nc\nbc\nc\nb\nabc\nbc\nc\nb\nab\nb\na",
+    },
+    {
+      question: "What is the output?",
+      code: `public static int p(int n) {
+  if (n <= 0) return 1;
+  return p(n - 1) + q(n - 1) + n;
+}
+
+public static int q(int n) {
+  if (n <= 0) return 2;
+  return p(n - 1) - q(n - 1) + 1;
+}
+
+System.out.println(p(3));`,
+      choices: ["A. 10", "B. 12", "C. 14", "D. 16"],
+      answer: "C",
+      explanation: "Build up: p(0)=1, q(0)=2. q(1)=p(0)-q(0)+1=0. p(1)=p(0)+q(0)+1=4. q(2)=p(1)-q(1)+1=5. p(2)=p(1)+q(1)+2=6. q(3) not needed. p(3)=p(2)+q(2)+3=6+5+3=14.",
     },
     {
       question: "What is printed?",
@@ -1022,47 +1052,55 @@ System.out.println(h(7, 3));
 System.out.println(calls);`,
       choices: null,
       answer: "4, 1, 10",
-      explanation: "This is Euclid's GCD by subtraction. h(12,8)=4 (5 calls). h(7,3)=1 (5 calls). Total calls = 10.",
-    },
-    {
-      question: "What is printed when build(new ArrayList<>(), \"abc\") is called?",
-      code: `public static void build(ArrayList<String> chosen, String remaining) {
-  if (remaining.isEmpty()) {
-    System.out.println(chosen);
-    return;
-  }
-  for (int i = 0; i < remaining.length(); i++) {
-    chosen.add(String.valueOf(remaining.charAt(i)));
-    build(chosen, remaining.substring(0, i) + remaining.substring(i + 1));
-    chosen.remove(chosen.size() - 1);
-  }
-}`,
-      choices: null,
-      answer: "All 6 permutations of a, b, c",
-      explanation: "Prints all permutations:\n[a, b, c]\n[a, c, b]\n[b, a, c]\n[b, c, a]\n[c, a, b]\n[c, b, a]",
-    },
-    {
-      question: "What is the output?",
-      code: `public static int p(int n) {
-  if (n <= 0) return 1;
-  return q(n - 1) + r(n - 1);
-}
-public static int q(int n) {
-  if (n <= 0) return 0;
-  return p(n - 1) + r(n - 1);
-}
-public static int r(int n) {
-  if (n <= 0) return 0;
-  return p(n - 1) + q(n - 1);
-}
-
-System.out.println(p(5));`,
-      choices: ["A. 8", "B. 10", "C. 16", "D. 21"],
-      answer: "B",
-      explanation: "Three mutually recursive functions. Building up: p(1)=1, q(1)=1, r(1)=1, then p(2)=2, ... Final p(5) = 10.",
+      explanation: "Euclid's GCD by subtraction. h(12,8)=4 (5 calls). h(7,3)=1 (5 calls). Total calls = 10.",
     },
   ],
   "Miscellaneous": [
+    {
+      question: "What is printed?",
+      code: `String s = "hello";
+String t = "he" + "llo";
+System.out.println(s == t);`,
+      choices: ["A. true", "B. false", "C. Compilation error", "D. null"],
+      answer: "A",
+      explanation: "\"he\" + \"llo\" is a compile-time constant expression, so Java evaluates it at compile time and stores the result \"hello\" in the String pool. Both s and t point to the same interned String object, so == returns true.",
+    },
+    {
+      question: "What is printed?",
+      code: `Integer a = 100;
+Integer b = 100;
+System.out.println(a == b);`,
+      choices: ["A. true", "B. false", "C. Compilation error", "D. depends on JVM"],
+      answer: "A",
+      explanation: "Java caches Integer objects for values -128 to 127 (Integer cache). Since 100 is in that range, both a and b reference the same cached Integer object, so == returns true. If they were 200, it would return false!",
+    },
+    {
+      question: "What is printed?",
+      code: `String s1 = new String("java");
+String s2 = "java";
+System.out.println(s1.equals(s2) + " " + (s1 == s2));`,
+      choices: ["A. true true", "B. true false", "C. false true", "D. false false"],
+      answer: "B",
+      explanation: "s1.equals(s2) compares content: \"java\" equals \"java\" → true. But `new String(...)` forces creation of a new object outside the String pool, so s1 and s2 are different objects → s1 == s2 is false.",
+    },
+    {
+      question: "What is printed?",
+      code: `int x = 5;
+System.out.println(x++ + ++x);`,
+      choices: ["A. 10", "B. 11", "C. 12", "D. 13"],
+      answer: "C",
+      explanation: "x++ is post-increment: returns 5, then x becomes 6. ++x is pre-increment: x becomes 7, returns 7. So the expression is 5 + 7 = 12.",
+    },
+    {
+      question: "What is printed?",
+      code: `int[] a = {1, 2, 3};
+int[] b = a;
+b[1] = 10;
+System.out.println(a[1]);`,
+      choices: ["A. 2", "B. 10", "C. Compilation error", "D. null"],
+      answer: "B",
+      explanation: "Arrays are objects. `b = a` copies the reference, so a and b point to the same array in memory. Modifying b[1] modifies a[1] too. Output: 10.",
+    },
     {
       question: "What does the `final` keyword do when applied to a variable?",
       code: null,
@@ -1075,66 +1113,6 @@ System.out.println(p(5));`,
       answer: "B",
       explanation: "`final` prevents REASSIGNMENT. For object references, you can still mutate the object — you just can't point the variable at a different object.",
     },
-    {
-      question: "What is printed?",
-      code: `String a = "hello";
-String b = "hello";
-String c = new String("hello");
-System.out.println((a == b) + " " + (a == c) + " " + a.equals(c));`,
-      choices: [
-        "A. true true true",
-        "B. true false true",
-        "C. false false true",
-        "D. true true false",
-      ],
-      answer: "B",
-      explanation: "String literals are interned, so a and b point to the same object (a == b is true). `new String(...)` creates a new object, so a == c is false. a.equals(c) compares content, so true.",
-    },
-    {
-      question: "What is the difference between `==` and `.equals()` for objects?",
-      code: null,
-      choices: null,
-      answer: "== compares references; .equals() compares content (if overridden)",
-      explanation: "`==` checks if two references point to the same object in memory. `.equals()` checks content equality IF the class has overridden it (otherwise it falls back to == behavior from Object).",
-    },
-    {
-      question: "What is printed?",
-      code: `int[] a = {1, 2, 3};
-int[] b = a;
-b[0] = 99;
-System.out.println(a[0]);`,
-      choices: ["A. 1", "B. 99", "C. 0", "D. Compilation error"],
-      answer: "B",
-      explanation: "Arrays are objects. `b = a` copies the reference, so a and b point to the same array. Modifying b[0] modifies a[0] too. Output: 99.",
-    },
-    {
-      question: "What happens when you try to access an index out of bounds in an ArrayList?",
-      code: null,
-      choices: [
-        "A. Returns null",
-        "B. Returns 0",
-        "C. Throws IndexOutOfBoundsException",
-        "D. Compilation error",
-      ],
-      answer: "C",
-      explanation: "ArrayList throws IndexOutOfBoundsException at runtime. This is a runtime error, not a compile-time error, because the index value isn't known until execution.",
-    },
-    {
-      question: "What is printed?",
-      code: `Integer x = 128;
-Integer y = 128;
-Integer a = 127;
-Integer b = 127;
-System.out.println((x == y) + " " + (a == b));`,
-      choices: [
-        "A. true true",
-        "B. false false",
-        "C. true false",
-        "D. false true",
-      ],
-      answer: "D",
-      explanation: "Integer caching! Java caches Integer objects for values -128 to 127. So a == b is true (same cached object), but x == y is false (two separate objects above the cache range).",
-    },
   ],
 };
 
@@ -1145,117 +1123,107 @@ const DEFAULT_TEAMS = [
 ];
 
 // ============ STATE ============
-let teams = JSON.parse(JSON.stringify(DEFAULT_TEAMS));
+let teams = DEFAULT_TEAMS.map(t => ({...t}));
 let scores = [0, 0, 0];
-let answered = {};
-let active = null;
+let answered = {}; // "category-valueIdx" -> true
+let active = null; // { category, valueIdx, cell }
 let selectedChoice = null;
 let revealed = false;
 let activeTeam = null;
 let editingTeams = false;
 
+const totalCells = CATEGORIES.length * VALUES.length;
+
 // ============ HELPERS ============
-function escapeHtml(str) {
-  return String(str)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  })[c]);
 }
 
-function answeredCount() {
-  return Object.keys(answered).length;
-}
-
-function isGameComplete() {
-  return answeredCount() === CATEGORIES.length * VALUES.length;
-}
+function answeredCount() { return Object.keys(answered).length; }
 
 // ============ RENDER BOARD ============
 function renderBoard() {
-  const board = document.getElementById("board");
-  board.innerHTML = "";
-  // category row
-  CATEGORIES.forEach((cat) => {
-    const el = document.createElement("div");
-    el.className = "cat-cell";
+  const board = document.getElementById('board');
+  board.innerHTML = '';
+
+  CATEGORIES.forEach(cat => {
+    const el = document.createElement('div');
+    el.className = 'category-cell';
     el.textContent = cat;
     board.appendChild(el);
   });
-  // value rows
+
   VALUES.forEach((val, valueIdx) => {
-    CATEGORIES.forEach((cat) => {
-      const key = cat + "-" + valueIdx;
-      const el = document.createElement("div");
-      el.className = "val-cell" + (answered[key] ? " answered" : "");
-      el.textContent = answered[key] ? "" : "$" + val;
-      if (!answered[key]) {
-        el.addEventListener("click", () => openCell(cat, valueIdx));
+    CATEGORIES.forEach(cat => {
+      const key = `${cat}-${valueIdx}`;
+      const isAnswered = !!answered[key];
+      const el = document.createElement('div');
+      el.className = 'value-cell' + (isAnswered ? ' answered' : '');
+      el.textContent = isAnswered ? '' : `$${val}`;
+      if (!isAnswered) {
+        el.addEventListener('click', () => openCell(cat, valueIdx));
       }
       board.appendChild(el);
     });
   });
-  document.getElementById("answered-count").textContent = answeredCount();
+
+  document.getElementById('answered-count').textContent = answeredCount();
+  document.getElementById('total-count').textContent = totalCells;
 }
 
-// ============ RENDER SCOREBOARD ============
-function renderScoreboard() {
-  const sb = document.getElementById("scoreboard");
-  sb.innerHTML = "";
-  const maxScore = Math.max.apply(null, scores);
+// ============ RENDER TEAM BAR ============
+function renderTeamBar() {
+  const bar = document.getElementById('team-bar');
+  bar.innerHTML = '';
+
+  const maxScore = Math.max(...scores);
   const allEqual = scores[0] === scores[1] && scores[1] === scores[2];
+
   teams.forEach((team, idx) => {
     const isLeader = scores[idx] === maxScore && !allEqual;
-    const div = document.createElement("div");
-    div.className = "team" + (isLeader ? " leader" : "");
-    div.style.borderLeft = "2px solid " + team.color;
-    const nameHtml = editingTeams
-      ? `<input value="${escapeHtml(team.name)}" data-team-idx="${idx}" maxlength="20" style="border:1px solid ${team.color}66" />`
-      : `<span style="color:${team.color}">${escapeHtml(team.name)}</span>${isLeader ? '<span class="leader-star">★</span>' : ''}`;
-    const sign = scores[idx] < 0 ? "-" : "";
-    div.innerHTML = `
-      <div class="team-name">${nameHtml}</div>
+    const card = document.createElement('div');
+    card.className = 'team-card' + (isLeader ? ' leader' : '');
+    card.style.borderLeft = `2px solid ${team.color}`;
+
+    let nameHtml;
+    if (editingTeams) {
+      nameHtml = `<input class="team-name-input" value="${escapeHtml(team.name)}" maxlength="20" style="border: 1px solid ${team.color}66;" oninput="updateTeamName(${idx}, this.value)" />`;
+    } else {
+      nameHtml = `<div class="team-name" style="color: ${team.color};">
+        ${escapeHtml(team.name)}
+        ${isLeader ? '<span class="leader-star">★</span>' : ''}
+      </div>`;
+    }
+
+    const sign = scores[idx] < 0 ? '-' : '';
+    const absScore = Math.abs(scores[idx]);
+
+    card.innerHTML = `
+      ${nameHtml}
       <div class="team-row">
-        <div class="team-score">${sign}$${Math.abs(scores[idx])}</div>
-        <div style="display:flex;gap:3px">
-          <button class="tiny-btn minus-btn" data-idx="${idx}" style="border:1px solid ${team.color}44">−</button>
-          <button class="tiny-btn plus-btn" data-idx="${idx}" style="border:1px solid ${team.color}44">+</button>
+        <div class="team-score">${sign}$${absScore}</div>
+        <div class="team-adjust">
+          <button style="border: 1px solid ${team.color}44;" onclick="updateScore(${idx}, -100)" title="−$100">−</button>
+          <button style="border: 1px solid ${team.color}44;" onclick="updateScore(${idx}, 100)" title="+$100">+</button>
         </div>
       </div>
     `;
-    sb.appendChild(div);
-  });
-  // attach listeners
-  sb.querySelectorAll(".minus-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      scores[parseInt(btn.dataset.idx)] -= 100;
-      renderScoreboard();
-    });
-  });
-  sb.querySelectorAll(".plus-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      scores[parseInt(btn.dataset.idx)] += 100;
-      renderScoreboard();
-    });
-  });
-  sb.querySelectorAll("input[data-team-idx]").forEach((input) => {
-    input.addEventListener("input", (e) => {
-      teams[parseInt(e.target.dataset.teamIdx)].name = e.target.value;
-    });
+    bar.appendChild(card);
   });
 }
 
 // ============ MODAL ============
 function openCell(category, valueIdx) {
-  const key = category + "-" + valueIdx;
+  const key = `${category}-${valueIdx}`;
   if (answered[key]) return;
   active = { category, valueIdx, cell: BOARD[category][valueIdx] };
   selectedChoice = null;
   revealed = false;
   activeTeam = null;
   renderModal();
-  document.getElementById("modal-backdrop").classList.remove("hidden");
+  document.getElementById('modal-backdrop').classList.add('open');
 }
 
 function closeCell() {
@@ -1263,246 +1231,245 @@ function closeCell() {
   selectedChoice = null;
   revealed = false;
   activeTeam = null;
-  document.getElementById("modal-backdrop").classList.add("hidden");
+  document.getElementById('modal-backdrop').classList.remove('open');
   checkGameComplete();
 }
 
-function skipQuestion() {
-  const key = active.category + "-" + active.valueIdx;
-  answered[key] = true;
-  closeCell();
-  renderBoard();
-}
-
-function submitMC() {
-  if (!selectedChoice || activeTeam === null) return;
-  const key = active.category + "-" + active.valueIdx;
-  const value = VALUES[active.valueIdx];
-  const correct = selectedChoice === active.cell.answer;
-  scores[activeTeam] += correct ? value : -value;
-  revealed = true;
-  answered[key] = true;
-  renderModal();
-  renderScoreboard();
-  renderBoard();
-}
-
-function markCorrect(teamIdx) {
-  const key = active.category + "-" + active.valueIdx;
-  scores[teamIdx] += VALUES[active.valueIdx];
-  answered[key] = true;
-  closeCell();
-  renderBoard();
-  renderScoreboard();
-}
-
-function markIncorrect(teamIdx) {
-  const key = active.category + "-" + active.valueIdx;
-  scores[teamIdx] -= VALUES[active.valueIdx];
-  answered[key] = true;
-  closeCell();
-  renderBoard();
-  renderScoreboard();
-}
-
 function renderModal() {
-  const modal = document.getElementById("modal");
+  if (!active) return;
+  const modal = document.getElementById('modal');
   const { category, valueIdx, cell } = active;
   const isMC = cell.choices !== null;
+  const value = VALUES[valueIdx];
 
-  let html = `
-    <div class="modal-header">
-      <div class="modal-cat">${escapeHtml(category)}</div>
-      <div class="modal-val">$${VALUES[valueIdx]}</div>
-    </div>
-    <div class="question-text">${escapeHtml(cell.question)}</div>
-  `;
-
-  if (cell.code) {
-    html += `<pre class="code">${escapeHtml(cell.code)}</pre>`;
-  }
-
-  // team picker (before reveal)
+  let teamSelectHtml = '';
   if (!revealed) {
-    html += `
-      <div class="team-picker">
-        <div class="team-picker-label">${isMC ? "Which team is answering?" : "Who buzzed in first?"}</div>
-        <div class="team-picker-grid">
-          ${teams.map((team, idx) => {
-            const selected = activeTeam === idx;
-            return `<button class="team-pick-btn pick-team-btn" data-idx="${idx}"
-              style="background:${selected ? team.color : 'rgba(0,0,0,0.3)'};
-                     color:${selected ? '#000' : '#fff'};
-                     border:2px solid ${team.color}">
-              ${escapeHtml(team.name)}
-            </button>`;
-          }).join("")}
+    teamSelectHtml = `
+      <div class="team-select-box">
+        <div class="team-select-label">${isMC ? 'Which team is answering?' : 'Who buzzed in first?'}</div>
+        <div class="team-select-grid">
+          ${teams.map((t, i) => `
+            <button class="team-select-btn ${activeTeam === i ? 'selected' : ''}"
+              style="border: 2px solid ${t.color}; ${activeTeam === i ? `background: ${t.color};` : ''}"
+              onclick="selectTeam(${i})">${escapeHtml(t.name)}</button>
+          `).join('')}
         </div>
       </div>
     `;
   }
 
-  // choices
+  let choicesHtml = '';
   if (isMC) {
-    html += `<div class="choices">`;
-    cell.choices.forEach((choice) => {
-      const letter = choice.trim().charAt(0);
-      let state = "";
-      if (revealed) {
-        if (letter === cell.answer) state = "correct";
-        else if (letter === selectedChoice) state = "incorrect";
-      } else if (selectedChoice === letter) {
-        state = "selected";
-      }
-      html += `<button class="choice ${state} choice-btn" data-letter="${letter}" ${revealed ? 'disabled' : ''}>${escapeHtml(choice)}</button>`;
-    });
-    html += `</div>`;
+    choicesHtml = `<div class="choices-list">
+      ${cell.choices.map(choice => {
+        const letter = choice.trim().charAt(0);
+        let state = 'default';
+        if (revealed) {
+          if (letter === cell.answer) state = 'correct';
+          else if (letter === selectedChoice) state = 'incorrect';
+        } else if (selectedChoice === letter) {
+          state = 'selected';
+        }
+        const stateClass = state === 'default' ? '' : state;
+        return `<button class="choice-btn ${stateClass}" ${revealed ? 'disabled' : ''} onclick="selectChoice('${letter}')">${escapeHtml(choice)}</button>`;
+      }).join('')}
+    </div>`;
   }
 
-  // free-response reveal
+  let revealHtml = '';
   if (!isMC && revealed) {
-    html += `
-      <div class="reveal-box">
-        <div class="reveal-label">ANSWER</div>
-        <div class="reveal-answer">${escapeHtml(cell.answer)}</div>
-      </div>
-    `;
+    revealHtml = `<div class="reveal-box">
+      <div class="reveal-label">ANSWER</div>
+      <div class="reveal-answer">${escapeHtml(cell.answer)}</div>
+    </div>`;
   }
 
-  // explanation
+  let explanationHtml = '';
   if (revealed) {
-    html += `<div class="explanation">${escapeHtml(cell.explanation)}</div>`;
+    explanationHtml = `<div class="explanation">${escapeHtml(cell.explanation)}</div>`;
   }
 
-  // actions
-  html += `<div class="actions">`;
+  let actionsHtml = '';
   if (!revealed && isMC) {
     const canSubmit = selectedChoice && activeTeam !== null;
-    const label = activeTeam === null ? "Pick a team first" : !selectedChoice ? "Pick an answer" : `Submit for ${teams[activeTeam].name}`;
-    html += `
-      <button class="btn btn-ghost" id="skip-btn">Skip (no points)</button>
-      <button class="btn btn-primary" id="submit-btn" ${canSubmit ? '' : 'disabled'}>${escapeHtml(label)}</button>
+    const label = activeTeam === null ? 'Pick a team first' : !selectedChoice ? 'Pick an answer' : `Submit for ${escapeHtml(teams[activeTeam].name)}`;
+    actionsHtml = `
+      <button class="btn btn-ghost" onclick="skipQuestion()">Skip (no points)</button>
+      <button class="btn btn-primary" ${canSubmit ? '' : 'disabled'} onclick="submitMC()">${label}</button>
     `;
   } else if (!revealed && !isMC) {
-    html += `
-      <button class="btn btn-ghost" id="skip-btn">Skip (no points)</button>
-      <button class="btn btn-primary" id="reveal-btn">Reveal Answer</button>
+    actionsHtml = `
+      <button class="btn btn-ghost" onclick="skipQuestion()">Skip (no points)</button>
+      <button class="btn btn-primary" onclick="revealAnswer()">Reveal Answer</button>
     `;
   } else if (revealed && !isMC) {
-    html += `<div class="team-award-grid">
-      <div class="team-award-label">Who gets the points?</div>
-      <div class="team-award-row">
-        ${teams.map((team, idx) => `
-          <button class="award-btn award-correct" data-idx="${idx}" style="background:${team.color}">
-            ${escapeHtml(team.name)}<span class="amt">+$${VALUES[valueIdx]}</span>
-          </button>
-        `).join("")}
+    actionsHtml = `
+      <div style="display: flex; flex-direction: column; gap: 10px; width: 100%;">
+        <div style="font-size: 11px; letter-spacing: 0.2em; color: #9bb3ff; text-align: center; text-transform: uppercase;">Who gets the points?</div>
+        <div class="scoring-grid">
+          ${teams.map((t, i) => `
+            <button class="score-award-btn" style="background: ${t.color};" onclick="markCorrect(${i})">
+              ${escapeHtml(t.name)}
+              <div style="font-size: 14px; margin-top: 2px;">+$${value}</div>
+            </button>
+          `).join('')}
+        </div>
+        <div class="scoring-grid">
+          ${teams.map((t, i) => `
+            <button class="score-wrong-btn" style="border: 1px solid ${t.color};" onclick="markIncorrect(${i})">
+              ${escapeHtml(t.name)} wrong
+              <div>−$${value}</div>
+            </button>
+          `).join('')}
+        </div>
+        <button class="btn btn-ghost" style="align-self: center; margin-top: 4px;" onclick="closeCell()">Close (no score change)</button>
       </div>
-      <div class="team-award-row">
-        ${teams.map((team, idx) => `
-          <button class="penalty-btn award-wrong" data-idx="${idx}" style="border:1px solid ${team.color}">
-            ${escapeHtml(team.name)} wrong<span class="amt">−$${VALUES[valueIdx]}</span>
-          </button>
-        `).join("")}
-      </div>
-      <button class="btn btn-ghost" id="close-btn" style="align-self:center;margin-top:4px">Close (no score change)</button>
-    </div>`;
+    `;
   } else if (revealed && isMC) {
-    html += `<button class="btn btn-primary" id="continue-btn">Continue</button>`;
+    actionsHtml = `<button class="btn btn-primary" onclick="closeCell()">Continue</button>`;
   }
-  html += `</div>`;
 
-  modal.innerHTML = html;
-
-  // ====== attach listeners ======
-  modal.querySelectorAll(".pick-team-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      activeTeam = parseInt(btn.dataset.idx);
-      renderModal();
-    });
-  });
-  modal.querySelectorAll(".choice-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      if (revealed) return;
-      selectedChoice = btn.dataset.letter;
-      renderModal();
-    });
-  });
-  const skipBtn = document.getElementById("skip-btn");
-  if (skipBtn) skipBtn.addEventListener("click", skipQuestion);
-  const submitBtn = document.getElementById("submit-btn");
-  if (submitBtn) submitBtn.addEventListener("click", submitMC);
-  const revealBtn = document.getElementById("reveal-btn");
-  if (revealBtn) revealBtn.addEventListener("click", () => { revealed = true; renderModal(); });
-  const continueBtn = document.getElementById("continue-btn");
-  if (continueBtn) continueBtn.addEventListener("click", closeCell);
-  const closeBtn = document.getElementById("close-btn");
-  if (closeBtn) closeBtn.addEventListener("click", closeCell);
-  modal.querySelectorAll(".award-correct").forEach((btn) => {
-    btn.addEventListener("click", () => markCorrect(parseInt(btn.dataset.idx)));
-  });
-  modal.querySelectorAll(".award-wrong").forEach((btn) => {
-    btn.addEventListener("click", () => markIncorrect(parseInt(btn.dataset.idx)));
-  });
-}
-
-// ============ GAME OVER ============
-function checkGameComplete() {
-  if (!isGameComplete()) {
-    document.getElementById("winner-banner").classList.add("hidden");
-    return;
-  }
-  const maxScore = Math.max.apply(null, scores);
-  const winners = teams.filter((_, i) => scores[i] === maxScore);
-  const winnerText = winners.length === 1
-    ? `Winner: <span style="color:${winners[0].color};font-weight:900;letter-spacing:0.1em">${escapeHtml(winners[0].name)}</span>`
-    : `Tie between: ${winners.map((w) => `<span style="color:${w.color};font-weight:900;letter-spacing:0.1em">${escapeHtml(w.name)}</span>`).join(", ")}`;
-
-  const banner = document.getElementById("winner-banner");
-  banner.innerHTML = `
-    <h2 class="winner-title">GAME OVER</h2>
-    <div style="font-size:22px;color:#fff">${winnerText}</div>
-    <div class="winner-grid">
-      ${teams.map((team, idx) => {
-        const sign = scores[idx] < 0 ? "-" : "";
-        return `<div class="winner-card" style="border:2px solid ${team.color}">
-          <div class="name" style="color:${team.color}">${escapeHtml(team.name)}</div>
-          <div class="score">${sign}$${Math.abs(scores[idx])}</div>
-        </div>`;
-      }).join("")}
+  modal.innerHTML = `
+    <div class="modal-header">
+      <div class="modal-category">${escapeHtml(category)}</div>
+      <div class="modal-value">$${value}</div>
     </div>
-    <button class="btn btn-primary" id="play-again-btn">Play Again</button>
+    <div class="question-text">${escapeHtml(cell.question)}</div>
+    ${cell.code ? `<pre class="code-block">${escapeHtml(cell.code)}</pre>` : ''}
+    ${teamSelectHtml}
+    ${choicesHtml}
+    ${revealHtml}
+    ${explanationHtml}
+    <div class="actions">${actionsHtml}</div>
   `;
-  banner.classList.remove("hidden");
-  document.getElementById("play-again-btn").addEventListener("click", resetGame);
 }
 
-// ============ RESET ============
+// ============ ACTIONS ============
+function selectTeam(idx) {
+  if (revealed) return;
+  activeTeam = idx;
+  renderModal();
+}
+
+function selectChoice(letter) {
+  if (revealed) return;
+  selectedChoice = letter;
+  renderModal();
+}
+
+function submitMC() {
+  if (!selectedChoice || activeTeam === null) return;
+  const { category, valueIdx, cell } = active;
+  const key = `${category}-${valueIdx}`;
+  const value = VALUES[valueIdx];
+  const correct = selectedChoice === cell.answer;
+  scores[activeTeam] += correct ? value : -value;
+  revealed = true;
+  answered[key] = true;
+  renderModal();
+  renderBoard();
+  renderTeamBar();
+}
+
+function revealAnswer() {
+  revealed = true;
+  renderModal();
+}
+
+function markCorrect(teamIdx) {
+  const { category, valueIdx } = active;
+  const key = `${category}-${valueIdx}`;
+  scores[teamIdx] += VALUES[valueIdx];
+  answered[key] = true;
+  renderBoard();
+  renderTeamBar();
+  closeCell();
+}
+
+function markIncorrect(teamIdx) {
+  const { category, valueIdx } = active;
+  const key = `${category}-${valueIdx}`;
+  scores[teamIdx] -= VALUES[valueIdx];
+  answered[key] = true;
+  renderBoard();
+  renderTeamBar();
+  closeCell();
+}
+
+function skipQuestion() {
+  const { category, valueIdx } = active;
+  const key = `${category}-${valueIdx}`;
+  answered[key] = true;
+  renderBoard();
+  closeCell();
+}
+
+function updateScore(idx, delta) {
+  scores[idx] += delta;
+  renderTeamBar();
+}
+
+function updateTeamName(idx, name) {
+  teams[idx].name = name;
+}
+
 function resetGame() {
-  const anyProgress = Object.keys(answered).length > 0 || scores.some((s) => s !== 0);
+  const anyProgress = answeredCount() > 0 || scores.some(s => s !== 0);
   if (anyProgress && !confirm("Reset the entire game?")) return;
   scores = [0, 0, 0];
   answered = {};
   active = null;
-  document.getElementById("modal-backdrop").classList.add("hidden");
-  document.getElementById("winner-banner").classList.add("hidden");
+  document.getElementById('modal-backdrop').classList.remove('open');
+  document.getElementById('winner-banner').classList.remove('open');
   renderBoard();
-  renderScoreboard();
+  renderTeamBar();
+}
+
+function toggleEditTeams() {
+  editingTeams = !editingTeams;
+  document.getElementById('rename-btn').textContent = editingTeams ? 'Done' : 'Rename Teams';
+  renderTeamBar();
+}
+
+function checkGameComplete() {
+  if (answeredCount() === totalCells) {
+    showWinner();
+  }
+}
+
+function showWinner() {
+  const banner = document.getElementById('winner-banner');
+  const maxScore = Math.max(...scores);
+  const winners = teams.filter((_, i) => scores[i] === maxScore);
+
+  const winnerText = winners.length === 1
+    ? `Winner: <span style="color: ${winners[0].color}; font-weight: 900; letter-spacing: 0.1em;">${escapeHtml(winners[0].name)}</span>`
+    : `Tie between: ${winners.map(w => `<span style="color: ${w.color}; font-weight: 900; letter-spacing: 0.1em;">${escapeHtml(w.name)}</span>`).join(', ')}`;
+
+  banner.innerHTML = `
+    <h2 class="winner-title">GAME OVER</h2>
+    <div style="font-size: 22px; color: #fff;">${winnerText}</div>
+    <div class="winner-grid">
+      ${teams.map((t, i) => {
+        const sign = scores[i] < 0 ? '-' : '';
+        return `<div class="winner-card" style="border: 2px solid ${t.color};">
+          <div style="color: ${t.color}; font-size: 13px; letter-spacing: 0.2em; text-transform: uppercase; font-weight: 700;">${escapeHtml(t.name)}</div>
+          <div style="font-family: 'Bodoni MT', 'Didot', Georgia, serif; font-size: 32px; font-weight: 900; color: #FFD700; margin-top: 4px;">${sign}$${Math.abs(scores[i])}</div>
+        </div>`;
+      }).join('')}
+    </div>
+    <button class="btn btn-primary" onclick="resetGame()">Play Again</button>
+  `;
+  banner.classList.add('open');
 }
 
 // ============ INIT ============
-document.getElementById("reset-btn").addEventListener("click", resetGame);
-document.getElementById("rename-btn").addEventListener("click", () => {
-  editingTeams = !editingTeams;
-  document.getElementById("rename-btn").textContent = editingTeams ? "Done" : "Rename Teams";
-  renderScoreboard();
-});
-document.getElementById("modal-backdrop").addEventListener("click", (e) => {
-  if (e.target.id === "modal-backdrop") closeCell();
-});
+document.getElementById('reset-btn').addEventListener('click', resetGame);
+document.getElementById('rename-btn').addEventListener('click', toggleEditTeams);
+document.getElementById('modal-backdrop').addEventListener('click', closeCell);
 
 renderBoard();
-renderScoreboard();
+renderTeamBar();
 </script>
 </body>
 </html>
