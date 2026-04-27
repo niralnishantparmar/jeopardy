@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>EECS Jeopardy — APCSA Review</title>
+<title>EECS Jeopardy: APCSA Review</title>
 <style>
   * { box-sizing: border-box; }
   body {
@@ -280,60 +280,6 @@
     overflow-x: auto;
     margin-bottom: 20px;
   }
-  .team-select-box {
-    margin-bottom: 16px;
-    padding: 14px;
-    background: rgba(0,0,0,0.3);
-    border: 1px solid rgba(255,215,0,0.3);
-    border-radius: 4px;
-  }
-  .team-select-label {
-    font-size: 11px;
-    letter-spacing: 0.2em;
-    color: #9bb3ff;
-    margin-bottom: 8px;
-    text-transform: uppercase;
-  }
-  .team-select-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-  }
-  .team-select-btn {
-    background: rgba(0,0,0,0.3);
-    color: #fff;
-    padding: 10px 8px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-family: inherit;
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    transition: all 0.15s;
-  }
-  .team-select-btn.selected { color: #000; }
-  .choices-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-bottom: 20px;
-  }
-  .choice-btn {
-    background: rgba(0,0,0,0.3);
-    border: 2px solid #3a4a8a;
-    color: #fff;
-    padding: 14px 18px;
-    border-radius: 4px;
-    font-size: 16px;
-    text-align: left;
-    cursor: pointer;
-    font-family: inherit;
-    transition: all 0.15s;
-  }
-  .choice-btn.selected { background: rgba(255,215,0,0.15); border-color: #FFD700; }
-  .choice-btn.correct { background: rgba(34,197,94,0.2); border-color: #22c55e; cursor: default; }
-  .choice-btn.incorrect { background: rgba(239,68,68,0.2); border-color: #ef4444; cursor: default; }
   .reveal-box {
     background: rgba(0,0,0,0.4);
     border: 2px dashed #FFD700;
@@ -354,6 +300,8 @@
     font-family: 'Bodoni MT', 'Didot', Georgia, serif;
     font-weight: 700;
     white-space: pre-wrap;
+    line-height: 1.4;
+    text-align: left;
   }
   .explanation {
     background: rgba(0,0,0,0.3);
@@ -384,8 +332,6 @@
   }
   .btn-primary { background: #FFD700; color: #000; }
   .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
-  .btn-success { background: #22c55e; color: #000; }
-  .btn-danger { background: #ef4444; color: #fff; }
   .scoring-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -474,7 +420,7 @@
 
     <div class="board" id="board"></div>
 
-    <div class="hint">Click a dollar value to reveal the clue</div>
+    <div class="hint">Click a dollar value to reveal the clue · Teams write their answers · Reveal to score</div>
 
     <div class="team-bar" id="team-bar"></div>
   </div>
@@ -498,620 +444,557 @@ const CATEGORIES = [
 
 const VALUES = [100, 200, 300, 400, 500, 600];
 
+// All questions are free-response. Teams give an answer before clicking "Reveal Answer".
+// Every output answer below was VERIFIED by compiling and running the Java code.
 const BOARD = {
   "Objects & Methods": [
     {
-      question: "Which statement BEST describes how objects are passed into methods in Java?",
+      question: "In Java, when an object is passed as an argument to a method, what exactly is copied into the parameter, and why does this allow the method to mutate the object's fields but NOT change which object the caller's variable refers to?",
       code: null,
-      choices: [
-        "A. Objects are passed by reference",
-        "B. Objects are passed by value of their reference",
-        "C. Objects are passed by value of their data",
-        "D. Objects are passed by copy of the object",
-      ],
-      answer: "B",
-      explanation: "Java is strictly pass-by-value. For objects, the VALUE that gets copied is the reference itself — so the method receives a copy of the reference pointing to the same object.",
+      answer: "The reference (the address) is copied. Java is pass-by-value of the reference.",
+      explanation: "Java is strictly pass-by-value. For objects, the value that gets copied is the reference itself, so the parameter and the caller's variable end up pointing to the same object. Mutating fields through the parameter is visible to the caller (same object). But reassigning the parameter only changes the local copy of the reference, so the caller's variable is untouched.",
     },
     {
       question: "What is printed?",
-      code: `public class Dog {
+      code: `public class Cat {
   private String name;
-  public Dog(String n) { name = n; }
-  public void setName(String n) { n = name; }
+  public Cat(String n) { name = n; }
+  public void rename(String name) { name = "Whiskers"; }
   public String getName() { return name; }
 }
 
-Dog d = new Dog("Max");
-d.setName("Buddy");
-System.out.println(d.getName());`,
-      choices: ["A. Max", "B. Buddy", "C. null", "D. Compilation error"],
-      answer: "A",
-      explanation: "Inside setName, the line `n = name;` assigns the field's value to the local parameter. The field `name` is never modified, so it stays \"Max\".",
+Cat c = new Cat("Felix");
+c.rename("Tom");
+System.out.println(c.getName());`,
+      answer: "Felix",
+      explanation: "Inside rename, the parameter `name` shadows the field. The line `name = \"Whiskers\"` reassigns the LOCAL parameter; it never touches the field. The field stays \"Felix\".",
     },
     {
       question: "What is printed?",
-      code: `public class Counter {
-  private int count;
-  public Counter() { count = 0; }
-  public void increment(int count) { count++; }
-  public int getCount() { return count; }
-}
-
-Counter c = new Counter();
-c.increment(5);
-System.out.println(c.getCount());`,
-      choices: ["A. 0", "B. 1", "C. 5", "D. 6"],
-      answer: "A",
-      explanation: "The parameter `count` shadows the instance field. `count++` increments the local parameter, not the field. The field stays at 0.",
-    },
-    {
-      question: "What is printed?",
-      code: `public class Box {
-  private int value;
-  public Box(int v) { value = v; }
-  public void change(Box b) {
-    b.value = 20;
-    b = new Box(50);
+      code: `public class Score {
+  private int points;
+  public Score() { points = 10; }
+  public void addPoints(int points) {
+    this.points = this.points + points;
+    points = 0;
   }
-  public int getValue() { return value; }
+  public int getPoints() { return points; }
 }
 
-Box b1 = new Box(10);
-b1.change(b1);
-System.out.println(b1.getValue());`,
-      choices: ["A. 10", "B. 20", "C. 50", "D. Compilation error"],
-      answer: "B",
-      explanation: "`b.value = 20` mutates the actual object b1 points to. Then `b = new Box(50)` only reassigns the LOCAL copy of the reference — b1 is unaffected. Result: 20.",
+Score s = new Score();
+s.addPoints(7);
+System.out.println(s.getPoints());`,
+      answer: "17",
+      explanation: "First line uses `this.points`, which actually updates the field: 10 + 7 = 17. Second line `points = 0` only resets the LOCAL parameter, not the field. The field stays at 17.",
     },
     {
       question: "What is printed?",
-      code: `public class A {
-  public int num;
-  public A(int n) { num = n; }
-  public void mystery(A other) {
-    other.num = num + other.num;
-    num = num * 2;
+      code: `public class Item {
+  private int price;
+  public Item(int p) { price = p; }
+  public void swap(Item other) {
+    int temp = this.price;
+    this.price = other.price;
+    other = new Item(temp);
   }
+  public int getPrice() { return price; }
 }
 
-A obj1 = new A(3);
-A obj2 = new A(4);
-obj1.mystery(obj2);
-System.out.println(obj1.num + " " + obj2.num);`,
-      choices: ["A. 3 7", "B. 6 7", "C. 6 10", "D. 3 10"],
-      answer: "B",
-      explanation: "other.num = 3 + 4 = 7 (obj2.num becomes 7). Then num = 3 * 2 = 6 (obj1.num becomes 6). Output: \"6 7\".",
+Item x = new Item(8);
+Item y = new Item(15);
+x.swap(y);
+System.out.println(x.getPrice() + " " + y.getPrice());`,
+      answer: "15 15",
+      explanation: "temp = 8. Then this.price = other.price actually mutates x's field to 15. But `other = new Item(temp)` only reassigns the LOCAL parameter, so y is unchanged. So x.price became 15 and y.price is still 15. Output: 15 15.",
     },
     {
       question: "What is printed?",
-      code: `public class Wrapper {
-  private int value;
-  public Wrapper(int v) { value = v; }
-  public void update(Wrapper w) {
-    w.value += value;
-    value += 5;
+      code: `public class Node {
+  public int val;
+  public Node(int v) { val = v; }
+  public void modify(Node other) {
+    other.val = this.val + other.val;
+    this.val = other.val - this.val;
+    other.val = other.val - this.val;
   }
-  public int getValue() { return value; }
 }
 
-Wrapper a = new Wrapper(2);
-Wrapper b = new Wrapper(3);
+Node p = new Node(5);
+Node q = new Node(2);
+p.modify(q);
+System.out.println(p.val + " " + q.val);`,
+      answer: "2 5",
+      explanation: "This is the classic arithmetic swap. Step 1: q.val = 5+2 = 7. Step 2: p.val = 7-5 = 2. Step 3: q.val = 7-2 = 5. p and q have been swapped. Output: 2 5.",
+    },
+    {
+      question: "What is printed?",
+      code: `public class Cell {
+  private int n;
+  public Cell(int n) { this.n = n; }
+  public void update(Cell c) {
+    c.n += this.n;
+    this.n -= 1;
+  }
+  public int getN() { return n; }
+}
+
+Cell a = new Cell(4);
+Cell b = new Cell(7);
 a.update(b);
+a.update(a);
 b.update(a);
-System.out.println(a.getValue() + " " + b.getValue());`,
-      choices: ["A. 7 5", "B. 10 7", "C. 12 10", "D. 7 10"],
-      answer: "C",
-      explanation: "a.update(b): b.value = 3+2 = 5, a.value = 2+5 = 7. Now a=7, b=5. b.update(a): a.value = 7+5 = 12, b.value = 5+5 = 10. Output: \"12 10\".",
+System.out.println(a.getN() + " " + b.getN());`,
+      answer: "16 10",
+      explanation: "Start: a=4, b=7.\na.update(b): b.n = 7+4 = 11; a.n = 4-1 = 3.\na.update(a): this and c are the same object! c.n += this.n → a.n = 3+3 = 6. Then this.n -= 1 → a.n = 5.\nb.update(a): a.n = 5+11 = 16; b.n = 11-1 = 10.\nFinal: a=16, b=10.",
     },
   ],
   "Selection & Iteration": [
     {
-      question: "What is the output of this code?",
-      code: `int x = 3;
-int y = 5;
-int sum = 0;
-for (int i = 0; i < 4; i++) {
-  x += i;
-  for (int j = 2; j >= 0; j--) {
-    if ((x + j) % 2 == 0) {
-      sum += x - j;
-    } else if ((y + i) % 3 == 0) {
-      sum += y + j;
-      y--;
-    } else {
-      sum += i + j;
-    }
-    x--;
+      question: "What is the output?",
+      code: `int x = 2;
+int y = 0;
+for (int i = 1; i <= 4; i++) {
+  if (i % 2 == 0) {
+    y += x * i;
+  } else {
+    y += x + i;
   }
-  y += i;
+  x++;
 }
-System.out.println(sum);`,
-      choices: null,
-      answer: "1",
-      explanation: "Trace carefully — this one requires tracking x, y, and sum through all iterations. Final sum = 1.",
+System.out.println(y);`,
+      answer: "36",
+      explanation: "i=1 (odd): y += 2+1 = 3 → y=3, x=3.\ni=2 (even): y += 3*2 = 6 → y=9, x=4.\ni=3 (odd): y += 4+3 = 7 → y=16, x=5.\ni=4 (even): y += 5*4 = 20 → y=36, x=6.\nOutput: 36.",
     },
     {
-      question: "What is the output of the code?",
-      code: `int a = 7;
-int b = 2;
-int count = 0;
-while (a > 0) {
-  if (a % 2 == 1) {
-    for (int i = 0; i < b; i++) {
-      count += i;
-      if (count % 2 == 0) {
-        a -= 2;
-      } else {
-        a--;
-      }
-    }
+      question: "What is the output?",
+      code: `int n = 5;
+int product = 1;
+int i = 1;
+while (i <= n) {
+  if (i % 2 == 1) {
+    product *= i;
   } else {
-    a /= 2;
-    b++;
+    product += i;
   }
-  count++;
+  i++;
 }
-System.out.println(count);`,
-      choices: null,
-      answer: "11",
-      explanation: "Final count = 11 after tracing through all the branches.",
+System.out.println(product);`,
+      answer: "65",
+      explanation: "i=1 (odd): product *= 1 → 1.\ni=2 (even): product += 2 → 3.\ni=3 (odd): product *= 3 → 9.\ni=4 (even): product += 4 → 13.\ni=5 (odd): product *= 5 → 65.\nOutput: 65.",
     },
     {
-      question: "What is the output of the code?",
-      code: `int n = 6;
-int total = 1;
-for (int i = 1; i <= n; i++) {
-  int temp = i;
-  while (temp > 0) {
-    if (temp % 2 == 0) {
-      total += temp / 2;
-      temp -= 3;
+      question: "What is the output?",
+      code: `int total = 0;
+for (int i = 1; i <= 4; i++) {
+  for (int j = i; j > 0; j--) {
+    if ((i + j) % 2 == 0) {
+      total += i;
     } else {
-      total += temp;
-      temp -= 2;
+      total -= j;
     }
-  }
-  if (total % 5 == 0) {
-    total /= 5;
-  } else {
-    total += i;
   }
 }
 System.out.println(total);`,
-      choices: null,
-      answer: "15",
-      explanation: "Final total = 15.",
+      answer: "10",
+      explanation: "i=1: j=1 → total += 1 = 1.\ni=2: j=2 → +2=3; j=1 → -1=2.\ni=3: j=3 → +3=5; j=2 → -2=3; j=1 → +3=6.\ni=4: j=4 → +4=10; j=3 → -3=7; j=2 → +4=11; j=1 → -1=10.\nOutput: 10.",
     },
     {
-      question: "What is the output of the code?",
-      code: `int result = 0;
-for (int i = 1; i <= 3; i++) {
-  int val = i * 2;
-  for (int j = 0; j < 3; j++) {
-    int temp = val;
-    if (j % 2 == 0) {
-      temp += j;
-    } else {
-      temp -= i;
-    }
-    for (int k = 1; k <= 2; k++) {
-      if ((temp + k) % 3 == 0) {
-        result += temp * k;
-      } else {
-        result -= k;
-      }
-    }
+      question: "What is the output?",
+      code: `int a = 10;
+int b = 0;
+while (a > 0) {
+  if (a % 3 == 0) {
+    b += a;
+    a -= 4;
+  } else if (a % 2 == 0) {
+    b -= 1;
+    a -= 3;
+  } else {
+    b *= 2;
+    a -= 1;
   }
+  b++;
 }
-System.out.println(result);`,
-      choices: null,
-      answer: "12",
-      explanation: "Triple nested loop trace — final result = 12.",
+System.out.println(b);`,
+      answer: "8",
+      explanation: "a=10 (even, not div3): b=-1, a=7. b++ → 0.\na=7 (odd): b*=2 → 0, a=6. b++ → 1.\na=6 (div3): b+=6 → 7, a=2. b++ → 8.\na=2 (even): b-=1 → 7, a=-1. b++ → 8.\na=-1 exits. Output: 8.",
     },
     {
-      question: "What is the output of the code?",
-      code: `int x = 4;
-int y = 3;
-int z = 0;
-for (int i = 0; i < 5; i++) {
-  boolean flag = (i % 2 == 0);
-  if (flag && x > y || !flag && y > x) {
-    z += x - y;
+      question: "What is the output? (Watch operator precedence carefully: && binds tighter than ||.)",
+      code: `int x = 5;
+int y = 2;
+int count = 0;
+for (int i = 0; i < 4; i++) {
+  boolean cond = (i < 2);
+  if (cond && x > y || !cond && y < x) {
+    count += x;
     x--;
   } else {
-    z += y - x;
+    count += y;
     y++;
   }
-  if ((x + y + z) % 4 == 0) {
-    z /= 2;
+  if ((x + y) % 3 == 0) {
+    count *= 2;
   } else {
-    z += i;
+    count -= i;
   }
 }
-System.out.println(z);`,
-      choices: null,
-      answer: "7",
-      explanation: "Remember && binds tighter than ||. Final z = 7.",
+System.out.println(count);`,
+      answer: "13",
+      explanation: "Condition parses as (cond && x>y) || (!cond && y<x).\ni=0: cond=true, 5>2 → if branch. count+=5=5, x=4. (x+y)=6, %3=0 → count*=2=10.\ni=1: cond=true, 4>2 → if. count+=4=14, x=3. (x+y)=5 → count-=1=13.\ni=2: cond=false, y<x (2<3) → if. count+=3=16, x=2. (x+y)=4 → count-=2=14.\ni=3: cond=false, y<x (2<2) → false. else. count+=2=16, y=3. (x+y)=5 → count-=3=13.\nOutput: 13.",
     },
     {
-      question: "What is the output of the code?",
-      code: `int a = 2;
-int b = 3;
-int c = 1;
-for (int i = 0; i < 4; i++) {
-  if (a % 2 == 0) {
-    b += a;
-    for (int j = 0; j < 2; j++) {
-      if ((b + j) % 3 == 0) {
-        c += b - j;
+      question: "What is the output?",
+      code: `int p = 1;
+int q = 4;
+int r = 0;
+for (int i = 0; i < 3; i++) {
+  if (q % 2 == 0) {
+    p += q;
+    for (int j = 1; j <= 2; j++) {
+      if ((p * j) % 4 == 0) {
+        r += p;
       } else {
-        c += a + j;
+        r += q - j;
       }
     }
-    a++;
+    q--;
   } else {
-    c += b;
-    b--;
+    r += p + q;
+    p++;
   }
-  if (c % 2 == 0) {
-    a += c % 3;
+  if (r % 3 == 0) {
+    q += i;
   } else {
-    b += c % 2;
+    p += r % 4;
   }
 }
-System.out.println(a + " " + b + " " + c);`,
-      choices: null,
-      answer: "3 6 25",
-      explanation: "After all 4 iterations: a=3, b=6, c=25.",
+System.out.println(p + " " + q + " " + r);`,
+      answer: "12 3 26",
+      explanation: "i=0: q=4 even. p=5. j=1: 5%4≠0 → r+=3=3. j=2: 10%4≠0 → r+=2=5. q=3. r%3=2 → p+=5%4=1, p=6.\ni=1: q=3 odd. r+=6+3=14. p=7. r%3=2 → p+=14%4=2, p=9.\ni=2: q=3 odd. r+=9+3=26. p=10. r%3=2 → p+=26%4=2, p=12.\nFinal: 12 3 26.",
     },
   ],
   "Class Creation": [
     {
-      question: "What is the purpose of the `this` keyword when used inside a constructor, and when is it necessary?",
+      question: "When you write a class without an explicit constructor, Java provides one automatically. What does this default constructor do, and what happens to your instance variables?",
       code: null,
-      choices: null,
-      answer: "To refer to the current object",
-      explanation: "`this` refers to the current object. It's necessary when a parameter has the same name as an instance variable. Without it, the assignment would just reassign the parameter to itself.",
-    },
-    {
-      question: "What is the output?",
-      code: `public class Counter {
-  private int count = 0;
-  public void increment() { count++; }
-  public int getCount() { return count; }
-}
-
-Counter a = new Counter();
-Counter b = a;
-b.increment();
-System.out.println(a.getCount());`,
-      choices: ["A. 0", "B. 1", "C. Compilation error", "D. null"],
-      answer: "B",
-      explanation: "a and b point to the same object. Calling increment() on b modifies the single shared object, so a.getCount() also reflects the change. Output: 1.",
-    },
-    {
-      question: "What is wrong with this constructor?",
-      code: `public class Rectangle {
-  private int width, height;
-  public Rectangle(int width, int height) {
-    width = width;
-    height = height;
-  }
-}`,
-      choices: null,
-      answer: "Missing 'this' — parameters assign to themselves",
-      explanation: "The parameters are being assigned to themselves. `this.width = width` and `this.height = height` are required. Without `this`, Java sees the local parameter on both sides of the =.",
-    },
-    {
-      question: "What is the value of Box.getCount() after this line executes?",
-      code: `public class Box {
-  private static int count = 0;
-  public Box() { count++; }
-  public static int getCount() { return count; }
-}
-
-Box[] arr = new Box[5];
-System.out.println(Box.getCount());`,
-      choices: ["A. 0", "B. 1", "C. 5", "D. Compilation error"],
-      answer: "A",
-      explanation: "Declaring an array only allocates space for 5 null references. No Box objects are actually constructed, so the constructor never runs and count is never incremented. Output: 0.",
-    },
-    {
-      question: "This code is meant to print true. Why does it always print false instead?",
-      code: `public class Point {
-  private int x, y;
-  public Point(int x, int y) { this.x = x; this.y = y; }
-  public boolean equals(Point other) {
-    return this.x == other.x && this.y == other.y;
-  }
-}
-
-Point p1 = new Point(2, 3);
-Point p2 = new Point(2, 3);
-System.out.println(p1.equals((Object) p2));`,
-      choices: null,
-      answer: "equals(Point) overloads — doesn't override Object.equals()",
-      explanation: "The method signature is equals(Point other), not equals(Object other). This means it OVERLOADS — not overrides — Object.equals(). When p2 is cast to Object, Java calls the original Object.equals() which compares references, not values, so it returns false.",
+      answer: "Java provides a no-arg constructor with an empty body. Instance variables get default values.",
+      explanation: "If you don't write any constructor, Java inserts a no-argument default constructor that does nothing in its body. Instance variables are initialized to their default values: 0 for numeric primitives (int, double, etc.), false for boolean, '\\u0000' for char, and null for any object reference. (Note: as soon as you write your own constructor, the default disappears.)",
     },
     {
       question: "What is printed?",
-      code: `public class Tricky {
-  private int x;
-  public Tricky(int x) { this.x = x; }
-  public Tricky add(Tricky other) {
-    return new Tricky(this.x + other.x);
-  }
-  public String toString() { return "" + x; }
+      code: `public class Account {
+  private double balance = 50.0;
+  public void deposit(double amount) { balance += amount; }
+  public double getBalance() { return balance; }
 }
 
-Tricky a = new Tricky(3);
-Tricky b = new Tricky(5);
-Tricky c = a.add(b).add(a);
-System.out.println(c);`,
-      choices: ["A. 8", "B. 11", "C. 13", "D. 16"],
-      answer: "B",
-      explanation: "a.add(b) creates a new Tricky(8). Then .add(a) is called on that temporary object, creating new Tricky(8 + 3) = Tricky(11). toString() returns \"11\".",
+Account x = new Account();
+Account y = new Account();
+x.deposit(20);
+y.deposit(10);
+System.out.println(x.getBalance() + " " + y.getBalance());`,
+      answer: "70.0 60.0",
+      explanation: "x and y are SEPARATE objects, each with its own copy of the `balance` field initialized to 50.0. x.deposit(20) only affects x → 70.0. y.deposit(10) only affects y → 60.0. Each object has independent instance state.",
+    },
+    {
+      question: "This constructor is supposed to make a defensive copy of the array so the outside caller can't modify the object's internal data. What's wrong with it, and how would you fix it?",
+      code: `public class Hand {
+  private int[] cards;
+  public Hand(int[] cards) {
+    this.cards = cards;
+  }
+}`,
+      answer: "It stores the same reference, not a copy. Fix: this.cards = cards.clone();",
+      explanation: "`this.cards = cards` copies only the reference, so the field and the caller's array point to the SAME array. If the caller mutates their array later, the Hand's internal state changes too, which defeats the point of a defensive copy. Fix it with `this.cards = cards.clone();` or `this.cards = Arrays.copyOf(cards, cards.length);` so the Hand has its own independent array.",
+    },
+    {
+      question: "What is printed?",
+      code: `public class Tracker {
+  private static int total = 0;
+  private int id;
+  public Tracker() {
+    total++;
+    id = total;
+  }
+  public int getId() { return id; }
+  public static int getTotal() { return total; }
+}
+
+Tracker t1 = new Tracker();
+Tracker t2 = new Tracker();
+Tracker t3 = new Tracker();
+System.out.println(t1.getId() + " " + t2.getId() + " " + t3.getId() + " " + Tracker.getTotal());`,
+      answer: "1 2 3 3",
+      explanation: "`total` is STATIC, shared across all instances. Each constructor call increments total, then captures it as the instance's id. t1: total=1, id=1. t2: total=2, id=2. t3: total=3, id=3. The shared total ends at 3. Output: 1 2 3 3.",
+    },
+    {
+      question: "Why does this code not behave like the programmer expects, and what is actually printed?",
+      code: `public class Temperature {
+  private double celsius;
+  public Temperature(double c) { celsius = c; }
+  public Temperature add(Temperature other) {
+    celsius += other.celsius;
+    return this;
+  }
+  public String toString() { return celsius + "C"; }
+}
+
+Temperature t1 = new Temperature(20);
+Temperature t2 = new Temperature(5);
+Temperature t3 = t1.add(t2);
+System.out.println(t1 + " " + t2 + " " + t3);`,
+      answer: "25.0C 5.0C 25.0C; add() mutates this and returns this, so t3 IS t1.",
+      explanation: "The `add` method mutates `this` (`celsius += other.celsius`) instead of building a new Temperature. So t1.celsius becomes 25.0. Then `return this` means t3 is just another reference to the SAME object as t1. The fix would be `return new Temperature(this.celsius + other.celsius);` and not mutating `this`.",
+    },
+    {
+      question: "What is printed?",
+      code: `public class Vec {
+  private int x, y;
+  public Vec(int x, int y) { this.x = x; this.y = y; }
+  public Vec scale(int k) { return new Vec(x * k, y * k); }
+  public Vec plus(Vec other) { return new Vec(x + other.x, y + other.y); }
+  public String toString() { return "(" + x + "," + y + ")"; }
+}
+
+Vec v = new Vec(1, 2);
+Vec w = v.scale(3).plus(v).scale(2);
+System.out.println(w);`,
+      answer: "(8,16)",
+      explanation: "Each method returns a NEW Vec; v itself is never mutated.\nv.scale(3) → (3,6).\n.plus(v) on (3,6) → (3+1, 6+2) = (4,8).\n.scale(2) on (4,8) → (8,16). Output: (8,16).",
     },
   ],
   "Arrays & ArrayLists": [
     {
       question: "What is printed?",
-      code: `int[] a = {3, 1, 4, 1, 5};
-int x = 1;
-for (int i = 0; i < a.length; i += 2)
-  x += a[i];
-System.out.println(x);`,
-      choices: ["A. 3", "B. 9", "C. 13", "D. 14"],
-      answer: "C",
-      explanation: "Iterates i = 0, 2, 4. x = 1 + 3 + 4 + 5 = 13.",
+      code: `int[] arr = {2, 5, 1, 8, 3};
+int s = 0;
+for (int i = 1; i < arr.length; i += 2) {
+  s += arr[i];
+}
+System.out.println(s);`,
+      answer: "13",
+      explanation: "Loop visits ODD indices: i=1, i=3. s += arr[1]=5 → 5. s += arr[3]=8 → 13. i=5 stops. Output: 13.",
     },
     {
       question: "What is printed?",
-      code: `int[] nums1 = {1, 2, 3, 4};
-int[] nums2 = {1, 2, 3, 4};
-int total = 0;
-int j = nums2.length - 1;
-for (int i = 0; i < nums1.length; i++) {
-  total += nums1[i] * nums2[j];
-  j--;
+      code: `int[] x = {4, 1, 3, 2};
+int[] y = {2, 3, 1, 4};
+int result = 0;
+for (int i = 0; i < x.length; i++) {
+  if (x[i] > y[i]) {
+    result += x[i] - y[i];
+  } else {
+    result += y[i];
+  }
 }
-System.out.println(total);`,
-      choices: ["A. 10", "B. 20", "C. 30", "D. 24"],
-      answer: "B",
-      explanation: "Computes sum of nums1[i] * nums2[length-1-i]. i=0: 1*4=4. i=1: 2*3=6. i=2: 3*2=6. i=3: 4*1=4. Total = 4+6+6+4 = 20.",
+System.out.println(result);`,
+      answer: "11",
+      explanation: "i=0: 4>2 → result += 4-2 = 2. result=2.\ni=1: 1≤3 → result += 3 = 5.\ni=2: 3>1 → result += 3-1 = 2. result=7.\ni=3: 2≤4 → result += 4 = 11.\nOutput: 11.",
     },
     {
-      question: "What is printed? Trace carefully — there is a subtle mutation.",
-      code: `ArrayList<Integer> a = new ArrayList<>(
-  Arrays.asList(3,1,4,1,5,9,2,6));
-int n = a.size();
-for (int i = 0; i < n / 2; i++) {
-  int sum = a.get(i) + a.get(n - 1 - i);
-  a.set(i, sum);
-  a.set(n - 1 - i, sum);
-}
-System.out.println(a.get(2) + a.get(5));`,
-      choices: ["A. 6", "B. 13", "C. 26", "D. 30"],
-      answer: "C",
-      explanation: "After the loop, the list becomes [9,3,13,6,6,13,3,9]. a.get(2) + a.get(5) = 13 + 13 = 26.",
-    },
-    {
-      question: "What is the result of compiling and running this code?",
-      code: `ArrayList list = new ArrayList();
-list.add("Hello");
-list.add(20);
-list.add("Grandpa");
-list.add(50);
+      question: "What is printed?",
+      code: `ArrayList<Integer> list = new ArrayList<>(
+  Arrays.asList(2, 4, 6, 8, 10));
 for (int i = 0; i < list.size(); i++) {
-  if (list.get(i).equals("Hello"))
-    System.out.print(list.get(i));
-  else
-    if (list.get(i) > 0)
-      System.out.print(list.get(i) * 2);
-}`,
-      choices: [
-        "A. Hello40100",
-        "B. Hello20Grandpa50",
-        "C. Compilation error",
-        "D. Runtime exception",
-      ],
-      answer: "C",
-      explanation: "Compilation error. `list.get(i)` returns Object (raw ArrayList). You cannot use `>` on Object, and you cannot multiply Object by 2. Won't compile.",
+  if (list.get(i) % 4 == 0) {
+    list.set(i, list.get(i) / 2);
+  }
+}
+int sum = 0;
+for (int n : list) sum += n;
+System.out.println(sum);`,
+      answer: "24",
+      explanation: "Only values divisible by 4 get halved: 4 → 2, 8 → 4. The list becomes [2, 2, 6, 4, 10]. Sum = 2+2+6+4+10 = 24.",
+    },
+    {
+      question: "What is printed?",
+      code: `ArrayList<Integer> a = new ArrayList<>(
+  Arrays.asList(1, 2, 3));
+ArrayList<Integer> b = a;
+b.add(4);
+a.set(0, 99);
+System.out.println(a + " " + b + " " + (a == b));`,
+      answer: "[99, 2, 3, 4] [99, 2, 3, 4] true",
+      explanation: "`b = a` copies the REFERENCE, so a and b point to the SAME ArrayList object on the heap. Every mutation through either variable shows up in both. b.add(4) appends to the shared list, then a.set(0, 99) overwrites index 0 of the same list. a == b compares references → true.",
     },
     {
       question: "What prints to the console?",
-      code: `public ArrayList<Integer> populateList(int[][] nums) {
-  ArrayList<Integer> numsList = new ArrayList<Integer>();
-  for (int r = 0; r < nums.length; r++) {
-    for (int c = 0; c < nums[r].length - 1; c++) {
-      for (int a = c + 1; a < nums[r].length; a++) {
-        if (nums[r][c] == nums[r][a]) {
-          numsList.add(r);
-          a = nums[r].length;
-          c = nums[r].length;
-        }
-      }
+      code: `public static int mystery(int[][] grid) {
+  int count = 0;
+  for (int r = 0; r < grid.length; r++) {
+    for (int c = 0; c < grid[r].length; c++) {
+      if (r == c) continue;
+      if (grid[r][c] > grid[c][r]) count++;
     }
   }
-  return numsList;
+  return count;
 }
 
-int[][] nums = {{5, 10, 5, 10},
-                {6, 8, 9, 2},
-                {3, 4, 3, 3}};
-System.out.println(populateList(nums));`,
-      choices: ["A. [0, 1, 2]", "B. [0, 2]", "C. [0, 0, 2, 2]", "D. [5, 3]"],
-      answer: "B",
-      explanation: "Row 0: finds 5==5, adds 0, breaks out. Row 1: no duplicates. Row 2: finds 3==3, adds 2, breaks. Result: [0, 2].",
+int[][] g = {{1, 4, 7},
+             {2, 5, 3},
+             {6, 8, 9}};
+System.out.println(mystery(g));`,
+      answer: "3",
+      explanation: "Counts pairs (r,c) where grid[r][c] > grid[c][r], skipping the diagonal:\n(0,1): 4 vs 2 ✓ → 1.\n(0,2): 7 vs 6 ✓ → 2.\n(1,0): 2 vs 4 ✗.\n(1,2): 3 vs 8 ✗.\n(2,0): 6 vs 7 ✗.\n(2,1): 8 vs 3 ✓ → 3.\nOutput: 3.",
     },
     {
       question: "What is printed?",
       code: `ArrayList<Integer> a = new ArrayList<>(
-  Arrays.asList(3,1,4,1,5,9,2,6));
-int n = a.size();
-for (int i = 0; i < n / 2; i++) {
-  int sum = a.get(i) + a.get(n - 1 - i);
-  a.set(i, sum);
-  a.set(n - 1 - i, sum);
+  Arrays.asList(1, 2, 3, 4, 5, 6));
+for (int i = 0; i < a.size(); i++) {
+  if (a.get(i) % 2 == 0) {
+    a.remove(i);
+    i--;
+  }
 }
-a.set(4, (a.remove(2) + a.get(5)));
-System.out.println(a.get(4));`,
-      choices: ["A. 13", "B. 16", "C. 19", "D. 26"],
-      answer: "B",
-      explanation: "After the loop: [9,3,13,6,6,13,3,9]. a.remove(2) returns 13, list becomes [9,3,6,6,13,3,9]. a.get(5) is now 3. 13+3 = 16. a.set(4, 16). Output: 16.",
+a.add(0, a.remove(a.size() - 1));
+System.out.println(a);`,
+      answer: "[5, 1, 3]",
+      explanation: "First loop removes evens. The `i--` after a remove is critical: it compensates for the shift so the next index isn't skipped. After the loop: [1, 3, 5].\nThen a.remove(a.size()-1) removes the last (5) and a.add(0, 5) puts it at the front → [5, 1, 3].",
     },
   ],
   "Recursion": [
     {
       question: "What is the output?",
-      code: `public static int f(int n) {
-  if (n == 0) return 0;
-  return n + f(n - 1);
+      code: `public static int g(int n) {
+  if (n <= 1) return 1;
+  return n * g(n - 1);
 }
-
-System.out.println(f(4));`,
-      choices: ["A. 6", "B. 10", "C. 15", "D. 24"],
-      answer: "B",
-      explanation: "f(4) = 4 + f(3) = 4 + 3 + f(2) = 4+3+2+1+0 = 10. Classic recursive sum.",
+System.out.println(g(5));`,
+      answer: "120",
+      explanation: "Classic factorial. g(5) = 5*g(4) = 5*4*g(3) = 5*4*3*g(2) = 5*4*3*2*g(1) = 5*4*3*2*1 = 120.",
     },
     {
       question: "What is the output?",
-      code: `public static int f(int n) {
-  if (n == 0) return 2;
-  return f(n - 1) * 2;
+      code: `public static int m(int n) {
+  if (n == 0) return 3;
+  return m(n - 1) + 4;
 }
-
-System.out.println(f(4));`,
-      choices: ["A. 8", "B. 16", "C. 32", "D. 64"],
-      answer: "C",
-      explanation: "f(4) = f(3)*2 = f(2)*4 = f(1)*8 = f(0)*16 = 2*16 = 32. Each level doubles, starting from base case 2.",
+System.out.println(m(5));`,
+      answer: "23",
+      explanation: "Each level adds 4 to the previous, starting at 3. m(0)=3, m(1)=7, m(2)=11, m(3)=15, m(4)=19, m(5)=23. (Equivalent to 3 + 4*5.)",
     },
     {
-      question: "What is the output?",
+      question: "What value does this code print?",
       code: `public static int calls = 0;
-public static int h(int a, int b) {
+public static int f(int n) {
   calls++;
-  if (a == b) return a;
-  if (a > b) return h(a - b, b);
-  return h(a, b - a);
+  if (n <= 1) return n;
+  return f(n - 1) + f(n - 2);
 }
 
-System.out.println(h(10, 6));
+f(5);
 System.out.println(calls);`,
-      choices: null,
-      answer: "2, 4",
-      explanation: "Euclid's GCD with base case a==b. h(10,6)→h(4,6)→h(4,2)→h(2,2)→returns 2. That's 4 calls. Output: 2 then 4.",
+      answer: "15",
+      explanation: "This is naive Fibonacci; every call branches into two. Counting nodes in the call tree for f(5): f(5)+f(4)+f(3)+f(2)+f(1)+f(0) → 1+1+2+3+5+3 = 15. (The general formula is 2·fib(n+1) − 1.)",
     },
     {
-      question: "What is printed when f(\"abcd\") is called?",
+      question: "What is printed when f(\"CODE\") is called?",
       code: `public static void f(String s) {
-  if (s.length() <= 1) {
-    System.out.println(s);
-    return;
-  }
-  System.out.println(s);
+  if (s.length() == 0) return;
   f(s.substring(1));
-  f(s.substring(0, s.length() - 1));
+  System.out.print(s.charAt(0));
 }
-
-f("abcd");`,
-      choices: null,
-      answer: "abcd, bcd, cd, d, c, bc, c, b, abc, bc, c, b, ab, b, a",
-      explanation: "Prints current string, then recurses on substring without first char, then substring without last char:\nabcd\nbcd\ncd\nd\nc\nbc\nc\nb\nabc\nbc\nc\nb\nab\nb\na",
+f("CODE");`,
+      answer: "EDOC",
+      explanation: "Each call recurses FIRST, then prints its first char. So the print happens as the stack unwinds, innermost (smallest substring) first. Order: 'E' (from f(\"E\")), 'D', 'O', 'C'. Concatenated: EDOC. (This pattern reverses a string.)",
     },
     {
-      question: "What is the output?",
-      code: `public static int p(int n) {
+      question: "What is the output? (Mutual recursion: work bottom-up from base cases.)",
+      code: `public static int a(int n) {
+  if (n <= 0) return 0;
+  return n + b(n - 1);
+}
+
+public static int b(int n) {
   if (n <= 0) return 1;
-  return p(n - 1) + q(n - 1) + n;
+  return a(n - 2) * 2;
 }
 
-public static int q(int n) {
-  if (n <= 0) return 2;
-  return p(n - 1) - q(n - 1) + 1;
-}
-
-System.out.println(p(3));`,
-      choices: ["A. 10", "B. 12", "C. 14", "D. 16"],
-      answer: "C",
-      explanation: "Build up: p(0)=1, q(0)=2. q(1)=p(0)-q(0)+1=0. p(1)=p(0)+q(0)+1=4. q(2)=p(1)-q(1)+1=5. p(2)=p(1)+q(1)+2=6. q(3) not needed. p(3)=p(2)+q(2)+3=6+5+3=14.",
+System.out.println(a(4));`,
+      answer: "8",
+      explanation: "a(4) = 4 + b(3).\nb(3) = a(1) * 2.\na(1) = 1 + b(0) = 1 + 1 = 2.\nSo b(3) = 2 * 2 = 4.\nAnd a(4) = 4 + 4 = 8.",
     },
     {
       question: "What is printed?",
       code: `public static int calls = 0;
-public static int h(int a, int b) {
+public static int z(int a, int b) {
   calls++;
-  if (a == 0) return b;
-  if (b == 0) return a;
-  if (a > b) return h(a - b, b);
-  return h(a, b - a);
+  if (b == 0) return 1;
+  if (b % 2 == 0) return z(a * a, b / 2);
+  return a * z(a, b - 1);
 }
 
-System.out.println(h(12, 8));
-System.out.println(h(7, 3));
+System.out.println(z(2, 6));
 System.out.println(calls);`,
-      choices: null,
-      answer: "4, 1, 10",
-      explanation: "Euclid's GCD by subtraction. h(12,8)=4 (5 calls). h(7,3)=1 (5 calls). Total calls = 10.",
+      answer: "64\n5",
+      explanation: "This is fast exponentiation; it computes a^b. When b is even, square the base and halve b. When b is odd, peel off one factor of a.\nz(2,6) → z(4,3) → 4·z(4,2) → 4·z(16,1) → 4·16·z(16,0) → 4·16·1 = 64. That's 5 calls total. (And 2^6 = 64, ✓.)",
     },
   ],
   "Miscellaneous": [
     {
       question: "What is printed?",
-      code: `String s = "hello";
-String t = "he" + "llo";
-System.out.println(s == t);`,
-      choices: ["A. true", "B. false", "C. Compilation error", "D. null"],
-      answer: "A",
-      explanation: "\"he\" + \"llo\" is a compile-time constant expression, so Java evaluates it at compile time and stores the result \"hello\" in the String pool. Both s and t point to the same interned String object, so == returns true.",
+      code: `String a = "test";
+String b = a;
+a = a.toUpperCase();
+System.out.println(a + " " + b);`,
+      answer: "TEST test",
+      explanation: "Strings are IMMUTABLE: String methods never modify the original; they always return a NEW String. After `String b = a`, both variables reference the same \"test\" object. Then `a.toUpperCase()` builds a brand-new String \"TEST\" and reassigns `a` to it. b still points to the original \"test\". Output: TEST test.",
     },
     {
       question: "What is printed?",
-      code: `Integer a = 100;
-Integer b = 100;
-System.out.println(a == b);`,
-      choices: ["A. true", "B. false", "C. Compilation error", "D. depends on JVM"],
-      answer: "A",
-      explanation: "Java caches Integer objects for values -128 to 127 (Integer cache). Since 100 is in that range, both a and b reference the same cached Integer object, so == returns true. If they were 200, it would return false!",
+      code: `int a = 7;
+int b = 2;
+double c = a / b;
+double d = (double) a / b;
+System.out.println(c + " " + d);`,
+      answer: "3.0 3.5",
+      explanation: "When BOTH operands of / are int, Java does integer division (truncates toward zero). 7 / 2 = 3, then that 3 is widened to 3.0 when stored in a double, so c = 3.0.\nIn `(double) a / b`, the cast turns a into 7.0 first. The cast binds tighter than /, so this is 7.0 / 2, and as soon as one operand is a double, b is auto-promoted, giving 3.5.",
     },
     {
       question: "What is printed?",
-      code: `String s1 = new String("java");
-String s2 = "java";
-System.out.println(s1.equals(s2) + " " + (s1 == s2));`,
-      choices: ["A. true true", "B. true false", "C. false true", "D. false false"],
-      answer: "B",
-      explanation: "s1.equals(s2) compares content: \"java\" equals \"java\" → true. But `new String(...)` forces creation of a new object outside the String pool, so s1 and s2 are different objects → s1 == s2 is false.",
+      code: `String a = "Hi";
+String b = "Hi";
+String c = new String("Hi");
+System.out.println((a == b) + " " + (a == c) + " " + a.equals(c));`,
+      answer: "true false true",
+      explanation: "a and b are both string literals, so they share the SAME pool reference → a==b true.\n`new String(\"Hi\")` forces a brand-new object on the heap, separate from the pool → a==c false.\n.equals compares contents, both \"Hi\" → true.",
     },
     {
       question: "What is printed?",
-      code: `int x = 5;
-System.out.println(x++ + ++x);`,
-      choices: ["A. 10", "B. 11", "C. 12", "D. 13"],
-      answer: "C",
-      explanation: "x++ is post-increment: returns 5, then x becomes 6. ++x is pre-increment: x becomes 7, returns 7. So the expression is 5 + 7 = 12.",
+      code: `int[][] grid = {{1, 2, 3},
+                {4, 5, 6},
+                {7, 8, 9}};
+int sum = 0;
+for (int r = 0; r < grid.length; r++) {
+  for (int c = 0; c < grid[r].length; c++) {
+    if (r == c || r + c == grid.length - 1) {
+      sum += grid[r][c];
+    }
+  }
+}
+System.out.println(sum);`,
+      answer: "25",
+      explanation: "The condition adds any cell on EITHER diagonal. Each cell is checked once, so the center (1,1) is added a single time even though both diagonals contain it.\nMain diagonal (r==c): grid[0][0]=1, grid[1][1]=5, grid[2][2]=9.\nAnti-diagonal (r+c==2): grid[0][2]=3, grid[1][1] (already counted), grid[2][0]=7.\nSum = 1 + 5 + 9 + 3 + 7 = 25.",
     },
     {
       question: "What is printed?",
       code: `int[] a = {1, 2, 3};
-int[] b = a;
-b[1] = 10;
-System.out.println(a[1]);`,
-      choices: ["A. 2", "B. 10", "C. Compilation error", "D. null"],
-      answer: "B",
-      explanation: "Arrays are objects. `b = a` copies the reference, so a and b point to the same array in memory. Modifying b[1] modifies a[1] too. Output: 10.",
+int[] b = {1, 2, 3};
+int[] c = a;
+System.out.println((a == b) + " " + (a == c) + " " + java.util.Arrays.equals(a, b));`,
+      answer: "false true true",
+      explanation: "Arrays are objects, so `==` compares references.\na and b were built by separate {…} literals, so they're different objects → a==b false.\nc = a copies the reference, so a and c point to the same array → a==c true.\nArrays.equals compares element-by-element → true.",
     },
     {
-      question: "What does the `final` keyword do when applied to a variable?",
-      code: null,
-      choices: [
-        "A. Makes the variable private",
-        "B. Prevents the variable from being reassigned",
-        "C. Makes the variable static",
-        "D. Makes the variable immutable in memory",
-      ],
-      answer: "B",
-      explanation: "`final` prevents REASSIGNMENT. For object references, you can still mutate the object — you just can't point the variable at a different object.",
+      question: "What is printed?",
+      code: `double a = Math.pow(2, 3);
+int b = (int) Math.sqrt(20);
+double c = Math.abs(-7.5);
+System.out.println(a + " " + b + " " + c);`,
+      answer: "8.0 4 7.5",
+      explanation: "Math.pow always returns a double; even integer powers give 8.0, not 8.\nMath.sqrt(20) ≈ 4.472..., and casting to int TRUNCATES toward zero (not rounds), giving 4.\nMath.abs(-7.5) returns 7.5.\nOutput: \"8.0 4 7.5\".",
     },
   ],
 };
@@ -1127,9 +1010,7 @@ let teams = DEFAULT_TEAMS.map(t => ({...t}));
 let scores = [0, 0, 0];
 let answered = {}; // "category-valueIdx" -> true
 let active = null; // { category, valueIdx, cell }
-let selectedChoice = null;
 let revealed = false;
-let activeTeam = null;
 let editingTeams = false;
 
 const totalCells = CATEGORIES.length * VALUES.length;
@@ -1219,18 +1100,14 @@ function openCell(category, valueIdx) {
   const key = `${category}-${valueIdx}`;
   if (answered[key]) return;
   active = { category, valueIdx, cell: BOARD[category][valueIdx] };
-  selectedChoice = null;
   revealed = false;
-  activeTeam = null;
   renderModal();
   document.getElementById('modal-backdrop').classList.add('open');
 }
 
 function closeCell() {
   active = null;
-  selectedChoice = null;
   revealed = false;
-  activeTeam = null;
   document.getElementById('modal-backdrop').classList.remove('open');
   checkGameComplete();
 }
@@ -1239,45 +1116,10 @@ function renderModal() {
   if (!active) return;
   const modal = document.getElementById('modal');
   const { category, valueIdx, cell } = active;
-  const isMC = cell.choices !== null;
   const value = VALUES[valueIdx];
 
-  let teamSelectHtml = '';
-  if (!revealed) {
-    teamSelectHtml = `
-      <div class="team-select-box">
-        <div class="team-select-label">${isMC ? 'Which team is answering?' : 'Who buzzed in first?'}</div>
-        <div class="team-select-grid">
-          ${teams.map((t, i) => `
-            <button class="team-select-btn ${activeTeam === i ? 'selected' : ''}"
-              style="border: 2px solid ${t.color}; ${activeTeam === i ? `background: ${t.color};` : ''}"
-              onclick="selectTeam(${i})">${escapeHtml(t.name)}</button>
-          `).join('')}
-        </div>
-      </div>
-    `;
-  }
-
-  let choicesHtml = '';
-  if (isMC) {
-    choicesHtml = `<div class="choices-list">
-      ${cell.choices.map(choice => {
-        const letter = choice.trim().charAt(0);
-        let state = 'default';
-        if (revealed) {
-          if (letter === cell.answer) state = 'correct';
-          else if (letter === selectedChoice) state = 'incorrect';
-        } else if (selectedChoice === letter) {
-          state = 'selected';
-        }
-        const stateClass = state === 'default' ? '' : state;
-        return `<button class="choice-btn ${stateClass}" ${revealed ? 'disabled' : ''} onclick="selectChoice('${letter}')">${escapeHtml(choice)}</button>`;
-      }).join('')}
-    </div>`;
-  }
-
   let revealHtml = '';
-  if (!isMC && revealed) {
+  if (revealed) {
     revealHtml = `<div class="reveal-box">
       <div class="reveal-label">ANSWER</div>
       <div class="reveal-answer">${escapeHtml(cell.answer)}</div>
@@ -1290,19 +1132,12 @@ function renderModal() {
   }
 
   let actionsHtml = '';
-  if (!revealed && isMC) {
-    const canSubmit = selectedChoice && activeTeam !== null;
-    const label = activeTeam === null ? 'Pick a team first' : !selectedChoice ? 'Pick an answer' : `Submit for ${escapeHtml(teams[activeTeam].name)}`;
-    actionsHtml = `
-      <button class="btn btn-ghost" onclick="skipQuestion()">Skip (no points)</button>
-      <button class="btn btn-primary" ${canSubmit ? '' : 'disabled'} onclick="submitMC()">${label}</button>
-    `;
-  } else if (!revealed && !isMC) {
+  if (!revealed) {
     actionsHtml = `
       <button class="btn btn-ghost" onclick="skipQuestion()">Skip (no points)</button>
       <button class="btn btn-primary" onclick="revealAnswer()">Reveal Answer</button>
     `;
-  } else if (revealed && !isMC) {
+  } else {
     actionsHtml = `
       <div style="display: flex; flex-direction: column; gap: 10px; width: 100%;">
         <div style="font-size: 11px; letter-spacing: 0.2em; color: #9bb3ff; text-align: center; text-transform: uppercase;">Who gets the points?</div>
@@ -1325,8 +1160,6 @@ function renderModal() {
         <button class="btn btn-ghost" style="align-self: center; margin-top: 4px;" onclick="closeCell()">Close (no score change)</button>
       </div>
     `;
-  } else if (revealed && isMC) {
-    actionsHtml = `<button class="btn btn-primary" onclick="closeCell()">Continue</button>`;
   }
 
   modal.innerHTML = `
@@ -1336,8 +1169,6 @@ function renderModal() {
     </div>
     <div class="question-text">${escapeHtml(cell.question)}</div>
     ${cell.code ? `<pre class="code-block">${escapeHtml(cell.code)}</pre>` : ''}
-    ${teamSelectHtml}
-    ${choicesHtml}
     ${revealHtml}
     ${explanationHtml}
     <div class="actions">${actionsHtml}</div>
@@ -1345,32 +1176,6 @@ function renderModal() {
 }
 
 // ============ ACTIONS ============
-function selectTeam(idx) {
-  if (revealed) return;
-  activeTeam = idx;
-  renderModal();
-}
-
-function selectChoice(letter) {
-  if (revealed) return;
-  selectedChoice = letter;
-  renderModal();
-}
-
-function submitMC() {
-  if (!selectedChoice || activeTeam === null) return;
-  const { category, valueIdx, cell } = active;
-  const key = `${category}-${valueIdx}`;
-  const value = VALUES[valueIdx];
-  const correct = selectedChoice === cell.answer;
-  scores[activeTeam] += correct ? value : -value;
-  revealed = true;
-  answered[key] = true;
-  renderModal();
-  renderBoard();
-  renderTeamBar();
-}
-
 function revealAnswer() {
   revealed = true;
   renderModal();
